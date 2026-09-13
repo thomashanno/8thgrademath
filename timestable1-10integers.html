@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Integer Multiplication & Division Practice</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f7f6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .card {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      text-align: center;
+      max-width: 450px;
+      width: 100%;
+    }
+    .problem {
+      font-size: 36px;
+      font-weight: bold;
+      margin: 20px 0;
+      color: #333;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 80px;
+    }
+    input[type="text"] {
+      font-size: 20px;
+      padding: 10px;
+      width: 60%;
+      text-align: center;
+      border: 2px solid #ccc;
+      border-radius: 6px;
+      outline: none;
+    }
+    input[type="text"]:focus {
+      border-color: #007bff;
+    }
+    button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .feedback {
+      margin-top: 15px;
+      font-size: 18px;
+      font-weight: bold;
+      height: 24px;
+    }
+    .correct { color: #28a745; }
+    .incorrect { color: #dc3545; }
+    .stats-container {
+      margin-top: 20px;
+      padding-top: 15px;
+      border-top: 1px solid #eee;
+      display: flex;
+      justify-content: space-around;
+      font-size: 14px;
+      color: #555;
+    }
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .stat-value {
+      font-weight: bold;
+      font-size: 16px;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h2>Integer Operations Practice</h2>
+  <p>Multiplication & Division (-10 to 10)</p>
+  
+  <div class="problem" id="problem">-6 • 8</div>
+  
+  <form id="answerForm">
+    <input type="text" id="userInput" placeholder="e.g. -48" autocomplete="off" required autofocus>
+    <br>
+    <button type="submit" id="submitBtn">Submit</button>
+  </form>
+
+  <div class="feedback" id="feedback"></div>
+
+  <div class="stats-container">
+    <div class="stat-item">
+      <span>Streak</span>
+      <span class="stat-value" id="streakVal">0</span>
+    </div>
+    <div class="stat-item">
+      <span>Total</span>
+      <span class="stat-value" id="totalVal">0</span>
+    </div>
+    <div class="stat-item">
+      <span>Correct</span>
+      <span class="stat-value" id="correctVal" style="color: #28a745;">0</span>
+    </div>
+    <div class="stat-item">
+      <span>Incorrect</span>
+      <span class="stat-value" id="incorrectVal" style="color: #dc3545;">0</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  let currentAnswer = "";
+  let streak = 0;
+  let total = 0;
+  let correct = 0;
+  let incorrect = 0;
+
+  // Generates non-zero integers between min and max
+  function getRandomNonZeroInt(min, max) {
+    let num = 0;
+    while (num === 0) {
+      num = Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+    return num;
+  }
+
+  // Format negative numbers in parentheses when secondary operator
+  function formatNum(num) {
+    return num < 0 ? `(${num})` : `${num}`;
+  }
+
+  function generateProblem() {
+    const isMultiplication = Math.random() < 0.5;
+    const n1 = getRandomNonZeroInt(-10, 10);
+    const n2 = getRandomNonZeroInt(-10, 10);
+
+    if (isMultiplication) {
+      const problemText = `${n1} • ${formatNum(n2)}`;
+      currentAnswer = (n1 * n2).toString();
+      document.getElementById('problem').textContent = problemText;
+    } else {
+      // For division, create product first so division is exact
+      const dividend = n1 * n2;
+      const divisor = n1;
+      const quotient = n2;
+
+      const problemText = `${dividend} ÷ ${formatNum(divisor)}`;
+      currentAnswer = quotient.toString();
+      document.getElementById('problem').textContent = problemText;
+    }
+
+    document.getElementById('userInput').value = '';
+    document.getElementById('userInput').focus();
+  }
+
+  function updateStats() {
+    document.getElementById('streakVal').textContent = streak;
+    document.getElementById('totalVal').textContent = total;
+    document.getElementById('correctVal').textContent = correct;
+    document.getElementById('incorrectVal').textContent = incorrect;
+  }
+
+  document.getElementById('answerForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const input = document.getElementById('userInput').value.trim();
+    const feedback = document.getElementById('feedback');
+
+    total++;
+
+    if (input === currentAnswer) {
+      feedback.textContent = "Correct!";
+      feedback.className = "feedback correct";
+      streak++;
+      correct++;
+      updateStats();
+      setTimeout(() => {
+        feedback.textContent = "";
+        generateProblem();
+      }, 1000);
+    } else {
+      feedback.textContent = `Try again! (Answer: ${currentAnswer})`;
+      feedback.className = "feedback incorrect";
+      streak = 0;
+      incorrect++;
+      updateStats();
+    }
+  });
+
+  generateProblem();
+</script>
+
+</body>
+</html>
