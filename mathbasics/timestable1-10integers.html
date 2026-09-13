@@ -85,6 +85,27 @@
       font-size: 16px;
       color: #333;
     }
+    .nav-links {
+      margin-top: 18px;
+      padding-top: 12px;
+      border-top: 1px dashed #eee;
+      font-size: 14px;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      align-items: center;
+    }
+    .nav-links a {
+      color: #007bff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .nav-links a:hover {
+      text-decoration: underline;
+    }
+    .nav-links span {
+      color: #ccc;
+    }
   </style>
 </head>
 <body>
@@ -120,6 +141,12 @@
       <span>Incorrect</span>
       <span class="stat-value" id="incorrectVal" style="color: #dc3545;">0</span>
     </div>
+    <!-- Navigation Links -->
+  <div class="nav-links">
+    <a href="javascript:history.back()">← Go Back</a>
+    <span>|</span>
+    <a href="../index.html">🏠 Home</a>
+  </div>
   </div>
 </div>
 
