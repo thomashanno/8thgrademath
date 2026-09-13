@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Exponent Practice: Dividing Bases</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f7f6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .card {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      text-align: center;
+      max-width: 450px;
+      width: 100%;
+    }
+    .problem {
+      font-size: 28px;
+      font-weight: bold;
+      margin: 20px 0;
+      color: #333;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 80px;
+    }
+    /* Vinculum Fraction Styling */
+    .fraction {
+      display: inline-flex;
+      flex-direction: column;
+      vertical-align: middle;
+      text-align: center;
+      padding: 0 4px;
+    }
+    .numerator {
+      border-bottom: 2px solid #333;
+      padding-bottom: 2px;
+    }
+    .denominator {
+      padding-top: 2px;
+    }
+    input[type="text"] {
+      font-size: 18px;
+      padding: 10px;
+      width: 60%;
+      text-align: center;
+      border: 2px solid #ccc;
+      border-radius: 6px;
+      outline: none;
+    }
+    input[type="text"]:focus {
+      border-color: #007bff;
+    }
+    button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .feedback {
+      margin-top: 15px;
+      font-size: 18px;
+      font-weight: bold;
+      height: 24px;
+    }
+    .correct { color: #28a745; }
+    .incorrect { color: #dc3545; }
+    .stats-container {
+      margin-top: 20px;
+      padding-top: 15px;
+      border-top: 1px solid #eee;
+      display: flex;
+      justify-content: space-around;
+      font-size: 14px;
+      color: #555;
+    }
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .stat-value {
+      font-weight: bold;
+      font-size: 16px;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h2>Exponent Division Practice</h2>
+  <p>Use <b>^</b> for exponents (e.g., <b>x^3</b>)</p>
+  
+  <div class="problem" id="problem">
+    <div class="fraction">
+      <span class="numerator">x<sup>7</sup></span>
+      <span class="denominator">x<sup>4</sup></span>
+    </div>
+  </div>
+  
+  <form id="answerForm">
+    <input type="text" id="userInput" placeholder="e.g. x^3" autocomplete="off" required>
+    <br>
+    <button type="submit" id="submitBtn">Submit</button>
+  </form>
+
+  <div class="feedback" id="feedback"></div>
+
+  <div class="stats-container">
+    <div class="stat-item">
+      <span>Streak</span>
+      <span class="stat-value" id="streakVal">0</span>
+    </div>
+    <div class="stat-item">
+      <span>Total</span>
+      <span class="stat-value" id="totalVal">0</span>
+    </div>
+    <div class="stat-item">
+      <span>Correct</span>
+      <span class="stat-value" id="correctVal" style="color: #28a745;">0</span>
+    </div>
+    <div class="stat-item">
+      <span>Incorrect</span>
+      <span class="stat-value" id="incorrectVal" style="color: #dc3545;">0</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  let currentAnswer = "";
+  let streak = 0;
+  let total = 0;
+  let correct = 0;
+  let incorrect = 0;
+
+  function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  function generateProblem() {
+    const variable = 'x';
+    let p1 = getRandomInt(2, 9);
+    let p2 = getRandomInt(2, 9);
+
+    // Ensure the numerator exponent is larger so answers stay positive
+    if (p1 < p2) [p1, p2] = [p2, p1];
+    if (p1 === p2) p1++;
+
+    // Division problem formatted as a fraction
+    const problemText = `<div class="fraction">
+      <span class="numerator">${variable}<sup>${p1}</sup></span>
+      <span class="denominator">${variable}<sup>${p2}</sup></span>
+    </div>`;
+    
+    currentAnswer = `${variable}^${p1 - p2}`;
+
+    document.getElementById('problem').innerHTML = problemText;
+    document.getElementById('userInput').value = '';
+    document.getElementById('userInput').focus();
+  }
+
+  function updateStats() {
+    document.getElementById('streakVal').textContent = streak;
+    document.getElementById('totalVal').textContent = total;
+    document.getElementById('correctVal').textContent = correct;
+    document.getElementById('incorrectVal').textContent = incorrect;
+  }
+
+  document.getElementById('answerForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const input = document.getElementById('userInput').value.trim().toLowerCase().replace(/\s+/g, '');
+    const feedback = document.getElementById('feedback');
+
+    total++;
+
+    if (input === currentAnswer) {
+      feedback.textContent = "Correct!";
+      feedback.className = "feedback correct";
+      streak++;
+      correct++;
+      updateStats();
+      setTimeout(() => {
+        feedback.textContent = "";
+        generateProblem();
+      }, 1000);
+    } else {
+      feedback.textContent = `Try again! (Answer: ${currentAnswer})`;
+      feedback.className = "feedback incorrect";
+      streak = 0;
+      incorrect++;
+      updateStats();
+    }
+  });
+
+  generateProblem();
+</script>
+
+</body>
+</html>
