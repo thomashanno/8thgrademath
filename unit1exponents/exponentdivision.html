@@ -11,27 +11,29 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      min-height: 100vh;
       margin: 0;
+      padding: 15px;
+      box-sizing: border-box;
     }
     .card {
       background: white;
-      padding: 30px;
+      padding: 25px 20px;
       border-radius: 12px;
       box-shadow: 0 4px 15px rgba(0,0,0,0.1);
       text-align: center;
-      max-width: 450px;
+      max-width: 400px;
       width: 100%;
     }
     .problem {
-      font-size: 28px;
+      font-size: 32px;
       font-weight: bold;
-      margin: 20px 0;
+      margin: 15px 0 10px 0;
       color: #333;
       display: flex;
       justify-content: center;
       align-items: center;
-      min-height: 80px;
+      min-height: 50px;
     }
     /* Vinculum Fraction Styling */
     .fraction {
@@ -48,31 +50,94 @@
     .denominator {
       padding-top: 2px;
     }
+    
+    /* Live Formatted Math Display */
+    .math-preview {
+      font-size: 28px;
+      font-weight: bold;
+      color: #007bff;
+      min-height: 44px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 12px;
+      background: #f8f9fa;
+      border: 2px dashed #007bff;
+      border-radius: 6px;
+      padding: 4px 10px;
+      box-sizing: border-box;
+    }
+    .math-preview sup {
+      font-size: 0.65em;
+      vertical-align: super;
+      line-height: 0;
+    }
+    .preview-placeholder {
+      font-size: 14px;
+      color: #aaa;
+      font-weight: normal;
+    }
+
     input[type="text"] {
       font-size: 18px;
       padding: 10px;
-      width: 60%;
+      width: 100%;
       text-align: center;
       border: 2px solid #ccc;
       border-radius: 6px;
       outline: none;
+      box-sizing: border-box;
+      background-color: #fff;
     }
     input[type="text"]:focus {
       border-color: #007bff;
     }
-    button {
-      margin-top: 15px;
-      padding: 10px 20px;
-      font-size: 16px;
+    .submit-btn {
+      margin-top: 12px;
+      width: 100%;
+      padding: 12px;
+      font-size: 18px;
+      font-weight: bold;
       background-color: #007bff;
       color: white;
       border: none;
       border-radius: 6px;
       cursor: pointer;
     }
-    button:hover {
+    .submit-btn:hover {
       background-color: #0056b3;
     }
+    
+    .keypad {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 15px;
+    }
+    .key-btn {
+      padding: 12px 0;
+      font-size: 18px;
+      font-weight: bold;
+      background-color: #e9ecef;
+      color: #333;
+      border: 1px solid #ced4da;
+      border-radius: 6px;
+      cursor: pointer;
+      user-select: none;
+      touch-action: manipulation;
+    }
+    .key-btn:active {
+      background-color: #adb5bd;
+    }
+    .key-btn.action {
+      background-color: #6c757d;
+      color: white;
+      border-color: #5a6268;
+    }
+    .key-btn.action:active {
+      background-color: #495057;
+    }
+
     .feedback {
       margin-top: 15px;
       font-size: 18px;
@@ -100,13 +165,34 @@
       font-size: 16px;
       color: #333;
     }
+    .nav-links {
+      margin-top: 18px;
+      padding-top: 12px;
+      border-top: 1px dashed #eee;
+      font-size: 14px;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      align-items: center;
+    }
+    .nav-links a {
+      color: #007bff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .nav-links a:hover {
+      text-decoration: underline;
+    }
+    .nav-links span {
+      color: #ccc;
+    }
   </style>
 </head>
 <body>
 
 <div class="card">
   <h2>Exponent Division Practice</h2>
-  <p>Use <b>^</b> for exponents (e.g., <b>x^3</b>)</p>
+  <p style="margin: 0 0 10px 0; font-size: 14px; color: #666;">Use keypad or keyboard to enter answer</p>
   
   <div class="problem" id="problem">
     <div class="fraction">
@@ -115,10 +201,39 @@
     </div>
   </div>
   
+  <!-- Live Math Formatting Display -->
+  <div class="math-preview" id="mathPreview">
+    <span class="preview-placeholder">Your answer preview</span>
+  </div>
+
   <form id="answerForm">
     <input type="text" id="userInput" placeholder="e.g. x^3" autocomplete="off" required>
-    <br>
-    <button type="submit" id="submitBtn">Submit</button>
+    
+    <div class="keypad">
+      <!-- Row 1 -->
+      <button type="button" class="key-btn" data-val="1">1</button>
+      <button type="button" class="key-btn" data-val="2">2</button>
+      <button type="button" class="key-btn" data-val="3">3</button>
+      <button type="button" class="key-btn action" data-val="x">x</button>
+      
+      <!-- Row 2 -->
+      <button type="button" class="key-btn" data-val="4">4</button>
+      <button type="button" class="key-btn" data-val="5">5</button>
+      <button type="button" class="key-btn" data-val="6">6</button>
+      <button type="button" class="key-btn action" data-val="^">^</button>
+      
+      <!-- Row 3 -->
+      <button type="button" class="key-btn" data-val="7">7</button>
+      <button type="button" class="key-btn" data-val="8">8</button>
+      <button type="button" class="key-btn" data-val="9">9</button>
+      <button type="button" class="key-btn action" data-val="-">-</button>
+
+      <!-- Row 4 -->
+      <button type="button" class="key-btn" data-val="0" style="grid-column: span 3;">0</button>
+      <button type="button" class="key-btn action" id="backspaceBtn">⌫</button>
+    </div>
+
+    <button type="submit" id="submitBtn" class="submit-btn">Submit</button>
   </form>
 
   <div class="feedback" id="feedback"></div>
@@ -141,6 +256,12 @@
       <span class="stat-value" id="incorrectVal" style="color: #dc3545;">0</span>
     </div>
   </div>
+
+  <div class="nav-links">
+    <a href="javascript:history.back()">← Go Back</a>
+    <span>|</span>
+    <a href="../index.html">🏠 Home</a>
+  </div>
 </div>
 
 <script>
@@ -149,6 +270,62 @@
   let total = 0;
   let correct = 0;
   let incorrect = 0;
+
+  const userInput = document.getElementById('userInput');
+  const mathPreview = document.getElementById('mathPreview');
+
+  // Detect mobile device to disable virtual keyboard popups on phones/tablets
+  const isMobile = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+
+  if (isMobile) {
+    userInput.setAttribute('readonly', 'true');
+    userInput.setAttribute('inputmode', 'none');
+  }
+
+  function escapeHtml(str) {
+    return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  // Renders typed/tapped x^3 as x³ visually in the preview box
+  function updateMathPreview() {
+    const val = userInput.value.trim();
+    if (!val) {
+      mathPreview.innerHTML = '<span class="preview-placeholder">Your answer preview</span>';
+      return;
+    }
+
+    if (val.includes('^')) {
+      const parts = val.split('^');
+      const base = parts[0] || '';
+      const exp = parts[1] !== undefined ? parts[1] : '';
+      mathPreview.innerHTML = `${escapeHtml(base)}<sup>${escapeHtml(exp)}</sup>`;
+    } else {
+      mathPreview.innerHTML = escapeHtml(val);
+    }
+  }
+
+  // Normalizes unicode superscripts (if pasted or typed) back into x^3 format
+  function cleanAnswer(text) {
+    const revMap = {
+      '⁰':'0', '¹':'1', '²':'2', '³':'3', '⁴':'4',
+      '⁵':'5', '⁶':'6', '⁷':'7', '⁸':'8', '⁹':'9', '⁻':'-'
+    };
+    let normalized = '';
+    let inExp = false;
+    for (let char of text) {
+      if (revMap[char]) {
+        if (!inExp) {
+          normalized += '^';
+          inExp = true;
+        }
+        normalized += revMap[char];
+      } else {
+        if (char !== '^') inExp = false;
+        normalized += char;
+      }
+    }
+    return normalized.trim().toLowerCase().replace(/\s+/g, '');
+  }
 
   function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -172,8 +349,12 @@
     currentAnswer = `${variable}^${p1 - p2}`;
 
     document.getElementById('problem').innerHTML = problemText;
-    document.getElementById('userInput').value = '';
-    document.getElementById('userInput').focus();
+    userInput.value = '';
+    updateMathPreview();
+    
+    if (!isMobile) {
+      userInput.focus();
+    }
   }
 
   function updateStats() {
@@ -183,14 +364,36 @@
     document.getElementById('incorrectVal').textContent = incorrect;
   }
 
+  // Handle typing input from physical keyboards
+  userInput.addEventListener('input', function() {
+    updateMathPreview();
+  });
+
+  // Handle Keypad Buttons
+  document.querySelectorAll('.key-btn[data-val]').forEach(button => {
+    button.addEventListener('click', function() {
+      userInput.value += this.getAttribute('data-val');
+      updateMathPreview();
+      if (!isMobile) userInput.focus();
+    });
+  });
+
+  // Handle Backspace Button
+  document.getElementById('backspaceBtn').addEventListener('click', function() {
+    userInput.value = userInput.value.slice(0, -1);
+    updateMathPreview();
+    if (!isMobile) userInput.focus();
+  });
+
+  // Handle Answer Validation
   document.getElementById('answerForm').addEventListener('submit', function(e) {
     e.preventDefault();
-    const input = document.getElementById('userInput').value.trim().toLowerCase().replace(/\s+/g, '');
+    const userSubmission = cleanAnswer(userInput.value);
     const feedback = document.getElementById('feedback');
 
     total++;
 
-    if (input === currentAnswer) {
+    if (userSubmission === currentAnswer) {
       feedback.textContent = "Correct!";
       feedback.className = "feedback correct";
       streak++;
