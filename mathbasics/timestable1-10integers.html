@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Integer Multiplication & Division Practice</title>
+  <title>Times Tables Practice</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -11,53 +11,91 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      min-height: 100vh;
       margin: 0;
+      padding: 15px;
+      box-sizing: border-box;
     }
     .card {
       background: white;
-      padding: 30px;
+      padding: 25px 20px;
       border-radius: 12px;
       box-shadow: 0 4px 15px rgba(0,0,0,0.1);
       text-align: center;
-      max-width: 450px;
+      max-width: 400px;
       width: 100%;
     }
     .problem {
       font-size: 36px;
       font-weight: bold;
-      margin: 20px 0;
+      margin: 15px 0 10px 0;
       color: #333;
       display: flex;
       justify-content: center;
       align-items: center;
-      min-height: 80px;
+      min-height: 50px;
     }
+
     input[type="text"] {
       font-size: 20px;
       padding: 10px;
-      width: 60%;
+      width: 100%;
       text-align: center;
       border: 2px solid #ccc;
       border-radius: 6px;
       outline: none;
+      box-sizing: border-box;
+      background-color: #fff;
     }
     input[type="text"]:focus {
       border-color: #007bff;
     }
-    button {
-      margin-top: 15px;
-      padding: 10px 20px;
-      font-size: 16px;
+    .submit-btn {
+      margin-top: 12px;
+      width: 100%;
+      padding: 12px;
+      font-size: 18px;
+      font-weight: bold;
       background-color: #007bff;
       color: white;
       border: none;
       border-radius: 6px;
       cursor: pointer;
     }
-    button:hover {
+    .submit-btn:hover {
       background-color: #0056b3;
     }
+    
+    .keypad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 15px;
+    }
+    .key-btn {
+      padding: 12px 0;
+      font-size: 20px;
+      font-weight: bold;
+      background-color: #e9ecef;
+      color: #333;
+      border: 1px solid #ced4da;
+      border-radius: 6px;
+      cursor: pointer;
+      user-select: none;
+      touch-action: manipulation;
+    }
+    .key-btn:active {
+      background-color: #adb5bd;
+    }
+    .key-btn.action {
+      background-color: #6c757d;
+      color: white;
+      border-color: #5a6268;
+    }
+    .key-btn.action:active {
+      background-color: #495057;
+    }
+
     .feedback {
       margin-top: 15px;
       font-size: 18px;
@@ -111,15 +149,36 @@
 <body>
 
 <div class="card">
-  <h2>Integer Operations Practice</h2>
-  <p>Multiplication & Division (-10 to 10)</p>
+  <h2>Times Tables Practice</h2>
+  <p style="margin: 0 0 15px 0; font-size: 14px; color: #666;">Type the product and press Submit or Enter</p>
   
-  <div class="problem" id="problem">-6 • 8</div>
-  
+  <div class="problem" id="problem">3 • 7</div>
+
   <form id="answerForm">
-    <input type="text" id="userInput" placeholder="e.g. -48" autocomplete="off" required autofocus>
-    <br>
-    <button type="submit" id="submitBtn">Submit</button>
+    <input type="text" id="userInput" placeholder="e.g. 21" autocomplete="off" required>
+    
+    <div class="keypad">
+      <!-- Row 1 -->
+      <button type="button" class="key-btn" data-val="1">1</button>
+      <button type="button" class="key-btn" data-val="2">2</button>
+      <button type="button" class="key-btn" data-val="3">3</button>
+      
+      <!-- Row 2 -->
+      <button type="button" class="key-btn" data-val="4">4</button>
+      <button type="button" class="key-btn" data-val="5">5</button>
+      <button type="button" class="key-btn" data-val="6">6</button>
+      
+      <!-- Row 3 -->
+      <button type="button" class="key-btn" data-val="7">7</button>
+      <button type="button" class="key-btn" data-val="8">8</button>
+      <button type="button" class="key-btn" data-val="9">9</button>
+
+      <!-- Row 4 -->
+      <button type="button" class="key-btn" data-val="0" style="grid-column: span 2;">0</button>
+      <button type="button" class="key-btn action" id="backspaceBtn">⌫</button>
+    </div>
+
+    <button type="submit" id="submitBtn" class="submit-btn">Submit</button>
   </form>
 
   <div class="feedback" id="feedback"></div>
@@ -143,13 +202,11 @@
     </div>
   </div>
 
-  <!-- Navigation Links Below Counters -->
   <div class="nav-links">
     <a href="javascript:history.back()">← Go Back</a>
     <span>|</span>
     <a href="../index.html">🏠 Home</a>
   </div>
-</div>
 </div>
 
 <script>
@@ -159,42 +216,34 @@
   let correct = 0;
   let incorrect = 0;
 
-  // Generates non-zero integers between min and max
-  function getRandomNonZeroInt(min, max) {
-    let num = 0;
-    while (num === 0) {
-      num = Math.floor(Math.random() * (max - min + 1)) + min;
-    }
-    return num;
+  const userInput = document.getElementById('userInput');
+
+  // Detect mobile device to disable virtual keyboard popups on phones/tablets
+  const isMobile = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+
+  if (isMobile) {
+    userInput.setAttribute('readonly', 'true');
+    userInput.setAttribute('inputmode', 'none');
   }
 
-  // Format negative numbers in parentheses when secondary operator
-  function formatNum(num) {
-    return num < 0 ? `(${num})` : `${num}`;
+  function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
   function generateProblem() {
-    const isMultiplication = Math.random() < 0.5;
-    const n1 = getRandomNonZeroInt(-10, 10);
-    const n2 = getRandomNonZeroInt(-10, 10);
+    // Numbers from 1 through 10
+    const num1 = getRandomInt(1, 10);
+    const num2 = getRandomInt(1, 10);
 
-    if (isMultiplication) {
-      const problemText = `${n1} • ${formatNum(n2)}`;
-      currentAnswer = (n1 * n2).toString();
-      document.getElementById('problem').textContent = problemText;
-    } else {
-      // For division, create product first so division is exact
-      const dividend = n1 * n2;
-      const divisor = n1;
-      const quotient = n2;
+    const problemText = `${num1} • ${num2}`;
+    currentAnswer = (num1 * num2).toString();
 
-      const problemText = `${dividend} ÷ ${formatNum(divisor)}`;
-      currentAnswer = quotient.toString();
-      document.getElementById('problem').textContent = problemText;
+    document.getElementById('problem').textContent = problemText;
+    userInput.value = '';
+    
+    if (!isMobile) {
+      userInput.focus();
     }
-
-    document.getElementById('userInput').value = '';
-    document.getElementById('userInput').focus();
   }
 
   function updateStats() {
@@ -204,9 +253,24 @@
     document.getElementById('incorrectVal').textContent = incorrect;
   }
 
+  // Handle Keypad Buttons
+  document.querySelectorAll('.key-btn[data-val]').forEach(button => {
+    button.addEventListener('click', function() {
+      userInput.value += this.getAttribute('data-val');
+      if (!isMobile) userInput.focus();
+    });
+  });
+
+  // Handle Backspace Button
+  document.getElementById('backspaceBtn').addEventListener('click', function() {
+    userInput.value = userInput.value.slice(0, -1);
+    if (!isMobile) userInput.focus();
+  });
+
+  // Handle Answer Validation
   document.getElementById('answerForm').addEventListener('submit', function(e) {
     e.preventDefault();
-    const input = document.getElementById('userInput').value.trim();
+    const input = userInput.value.trim();
     const feedback = document.getElementById('feedback');
 
     total++;
