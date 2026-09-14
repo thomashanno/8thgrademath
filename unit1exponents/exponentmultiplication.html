@@ -33,10 +33,18 @@
       align-items: center;
       min-height: 80px;
     }
+    .input-group {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      width: 80%;
+      margin: 0 auto;
+    }
     input[type="text"] {
       font-size: 18px;
       padding: 10px;
-      width: 60%;
+      width: 100%;
       text-align: center;
       border: 2px solid #ccc;
       border-radius: 6px;
@@ -44,6 +52,17 @@
     }
     input[type="text"]:focus {
       border-color: #007bff;
+    }
+    .shortcut-btn {
+      margin-top: 0 !important;
+      padding: 10px 16px !important;
+      font-size: 20px !important;
+      font-weight: bold;
+      background-color: #6c757d !important;
+      border-radius: 6px;
+    }
+    .shortcut-btn:hover {
+      background-color: #5a6268 !important;
     }
     button {
       margin-top: 15px;
@@ -85,25 +104,6 @@
       font-size: 16px;
       color: #333;
     }
-    .input-group {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 8px;
-      max-width: 80%;
-      margin: 0 auto;
-    }
-    .shortcut-btn {
-      margin-top: 0 !important;
-      padding: 10px 16px !important;
-      font-size: 20px !important;
-      font-weight: bold;
-      background-color: #6c757d !important;
-      border-radius: 6px;
-    }
-    .shortcut-btn:hover {
-      background-color: #5a6268 !important;
-    }
   </style>
 </head>
 <body>
@@ -114,7 +114,7 @@
   
   <div class="problem" id="problem">x^5 • x^4</div>
   
- <form id="answerForm">
+  <form id="answerForm">
     <div class="input-group">
       <input type="text" id="userInput" placeholder="e.g. x^9" autocomplete="off" required>
       <button type="button" id="caretBtn" class="shortcut-btn">^</button>
@@ -177,6 +177,12 @@
     document.getElementById('incorrectVal').textContent = incorrect;
   }
 
+  document.getElementById('caretBtn').addEventListener('click', function() {
+    const input = document.getElementById('userInput');
+    input.value += '^';
+    input.focus();
+  });
+
   document.getElementById('answerForm').addEventListener('submit', function(e) {
     e.preventDefault();
     const input = document.getElementById('userInput').value.trim().toLowerCase().replace(/\s+/g, '');
@@ -201,11 +207,6 @@
       incorrect++;
       updateStats();
     }
-    document.getElementById('caretBtn').addEventListener('click', function() {
-    const input = document.getElementById('userInput');
-    input.value += '^';
-    input.focus();
-  });
   });
 
   generateProblem();
