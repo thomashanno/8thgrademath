@@ -85,6 +85,25 @@
       font-size: 16px;
       color: #333;
     }
+    .input-group {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      max-width: 80%;
+      margin: 0 auto;
+    }
+    .shortcut-btn {
+      margin-top: 0 !important;
+      padding: 10px 16px !important;
+      font-size: 20px !important;
+      font-weight: bold;
+      background-color: #6c757d !important;
+      border-radius: 6px;
+    }
+    .shortcut-btn:hover {
+      background-color: #5a6268 !important;
+    }
   </style>
 </head>
 <body>
@@ -95,8 +114,11 @@
   
   <div class="problem" id="problem">x^5 • x^4</div>
   
-  <form id="answerForm">
-    <input type="text" id="userInput" placeholder="e.g. x^9" autocomplete="off" required>
+ <form id="answerForm">
+    <div class="input-group">
+      <input type="text" id="userInput" placeholder="e.g. x^9" autocomplete="off" required>
+      <button type="button" id="caretBtn" class="shortcut-btn">^</button>
+    </div>
     <br>
     <button type="submit" id="submitBtn">Submit</button>
   </form>
@@ -179,6 +201,11 @@
       incorrect++;
       updateStats();
     }
+    document.getElementById('caretBtn').addEventListener('click', function() {
+    const input = document.getElementById('userInput');
+    input.value += '^';
+    input.focus();
+  });
   });
 
   generateProblem();
