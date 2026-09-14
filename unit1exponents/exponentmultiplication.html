@@ -149,13 +149,12 @@
 
 <div class="card">
   <h2>Exponent Multiplication Practice</h2>
-  <p style="margin: 0; font-size: 14px; color: #666;">Use the keypad below to enter answer</p>
+  <p style="margin: 0; font-size: 14px; color: #666;">Use keypad or keyboard to enter answer</p>
   
   <div class="problem" id="problem">x^5 • x^4</div>
   
   <form id="answerForm">
-    <!-- inputmode="none" and readonly block mobile keyboard popups -->
-    <input type="text" id="userInput" placeholder="e.g. x^9" autocomplete="off" inputmode="none" readonly required>
+    <input type="text" id="userInput" placeholder="e.g. x^9" autocomplete="off" required>
     
     <div class="keypad">
       <!-- Row 1 -->
@@ -219,6 +218,16 @@
   let correct = 0;
   let incorrect = 0;
 
+  const userInput = document.getElementById('userInput');
+
+  // Detect mobile device
+  const isMobile = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+
+  if (isMobile) {
+    userInput.setAttribute('readonly', 'true');
+    userInput.setAttribute('inputmode', 'none');
+  }
+
   function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
@@ -232,7 +241,11 @@
     currentAnswer = `${variable}^${p1 + p2}`;
 
     document.getElementById('problem').innerHTML = problemText;
-    document.getElementById('userInput').value = '';
+    userInput.value = '';
+    
+    if (!isMobile) {
+      userInput.focus();
+    }
   }
 
   function updateStats() {
@@ -245,20 +258,20 @@
   // Handle Keypad Inputs
   document.querySelectorAll('.key-btn[data-val]').forEach(button => {
     button.addEventListener('click', function() {
-      const input = document.getElementById('userInput');
-      input.value += this.getAttribute('data-val');
+      userInput.value += this.getAttribute('data-val');
+      if (!isMobile) userInput.focus();
     });
   });
 
   // Handle Backspace Button
   document.getElementById('backspaceBtn').addEventListener('click', function() {
-    const input = document.getElementById('userInput');
-    input.value = input.value.slice(0, -1);
+    userInput.value = userInput.value.slice(0, -1);
+    if (!isMobile) userInput.focus();
   });
 
   document.getElementById('answerForm').addEventListener('submit', function(e) {
     e.preventDefault();
-    const input = document.getElementById('userInput').value.trim().toLowerCase().replace(/\s+/g, '');
+    const input = userInput.value.trim().toLowerCase().replace(/\s+/g, '');
     const feedback = document.getElementById('feedback');
 
     total++;
