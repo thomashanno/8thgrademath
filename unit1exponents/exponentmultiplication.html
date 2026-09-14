@@ -11,72 +11,90 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      min-height: 100vh;
       margin: 0;
+      padding: 15px;
+      box-sizing: border-box;
     }
     .card {
       background: white;
-      padding: 30px;
+      padding: 25px 20px;
       border-radius: 12px;
       box-shadow: 0 4px 15px rgba(0,0,0,0.1);
       text-align: center;
-      max-width: 450px;
+      max-width: 400px;
       width: 100%;
     }
     .problem {
-      font-size: 28px;
+      font-size: 32px;
       font-weight: bold;
-      margin: 20px 0;
+      margin: 15px 0;
       color: #333;
       display: flex;
       justify-content: center;
       align-items: center;
-      min-height: 80px;
-    }
-    .input-group {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 8px;
-      width: 80%;
-      margin: 0 auto;
+      min-height: 60px;
     }
     input[type="text"] {
-      font-size: 18px;
+      font-size: 22px;
       padding: 10px;
       width: 100%;
       text-align: center;
       border: 2px solid #ccc;
       border-radius: 6px;
       outline: none;
+      box-sizing: border-box;
     }
     input[type="text"]:focus {
       border-color: #007bff;
     }
-    .shortcut-btn {
-      margin-top: 0 !important;
-      padding: 10px 16px !important;
-      font-size: 20px !important;
+    .submit-btn {
+      margin-top: 12px;
+      width: 100%;
+      padding: 12px;
+      font-size: 18px;
       font-weight: bold;
-      background-color: #6c757d !important;
-      border-radius: 6px;
-    }
-    .shortcut-btn:hover {
-      background-color: #5a6268 !important;
-    }
-    button {
-      margin-top: 15px;
-      padding: 10px 20px;
-      font-size: 16px;
       background-color: #007bff;
       color: white;
       border: none;
       border-radius: 6px;
       cursor: pointer;
     }
-    button:hover {
+    .submit-btn:hover {
       background-color: #0056b3;
     }
+    
+    /* Mobile Keypad 4-Column Layout */
+    .keypad {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 15px;
+    }
+    .key-btn {
+      padding: 12px 0;
+      font-size: 18px;
+      font-weight: bold;
+      background-color: #e9ecef;
+      color: #333;
+      border: 1px solid #ced4da;
+      border-radius: 6px;
+      cursor: pointer;
+      user-select: none;
+      touch-action: manipulation;
+    }
+    .key-btn:active {
+      background-color: #adb5bd;
+    }
+    .key-btn.action {
+      background-color: #6c757d;
+      color: white;
+      border-color: #5a6268;
+    }
+    .key-btn.action:active {
+      background-color: #495057;
+    }
+
     .feedback {
       margin-top: 15px;
       font-size: 18px;
@@ -104,23 +122,66 @@
       font-size: 16px;
       color: #333;
     }
+    .nav-links {
+      margin-top: 18px;
+      padding-top: 12px;
+      border-top: 1px dashed #eee;
+      font-size: 14px;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      align-items: center;
+    }
+    .nav-links a {
+      color: #007bff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .nav-links a:hover {
+      text-decoration: underline;
+    }
+    .nav-links span {
+      color: #ccc;
+    }
   </style>
 </head>
 <body>
 
 <div class="card">
   <h2>Exponent Multiplication Practice</h2>
-  <p>Use <b>^</b> for exponents (e.g., <b>x^9</b>)</p>
+  <p style="margin: 0; font-size: 14px; color: #666;">Use keypad or keyboard to enter answer</p>
   
   <div class="problem" id="problem">x^5 • x^4</div>
   
   <form id="answerForm">
-    <div class="input-group">
-      <input type="text" id="userInput" placeholder="e.g. x^9" autocomplete="off" required>
-      <button type="button" id="caretBtn" class="shortcut-btn">^</button>
+    <input type="text" id="userInput" placeholder="e.g. x^9" autocomplete="off" required>
+    
+    <!-- Structured Mobile Keypad -->
+    <div class="keypad">
+      <!-- Row 1 -->
+      <button type="button" class="key-btn" data-val="1">1</button>
+      <button type="button" class="key-btn" data-val="2">2</button>
+      <button type="button" class="key-btn" data-val="3">3</button>
+      <button type="button" class="key-btn action" data-val="x">x</button>
+      
+      <!-- Row 2 -->
+      <button type="button" class="key-btn" data-val="4">4</button>
+      <button type="button" class="key-btn" data-val="5">5</button>
+      <button type="button" class="key-btn" data-val="6">6</button>
+      <button type="button" class="key-btn action" data-val="^">^</button>
+      
+      <!-- Row 3 -->
+      <button type="button" class="key-btn" data-val="7">7</button>
+      <button type="button" class="key-btn" data-val="8">8</button>
+      <button type="button" class="key-btn" data-val="9">9</button>
+      <button type="button" class="key-btn action" data-val="-">-</button>
+
+      <!-- Row 4 -->
+      <button type="button" class="key-btn" data-val="0" style="grid-column: span 3;">0</button>
+      <button type="button" class="key-btn action" id="backspaceBtn">⌫</button>
     </div>
-    <br>
-    <button type="submit" id="submitBtn">Submit</button>
+
+    <button type="submit" id="submitBtn" class="submit-btn">Submit</button>
   </form>
 
   <div class="feedback" id="feedback"></div>
@@ -143,6 +204,12 @@
       <span class="stat-value" id="incorrectVal" style="color: #dc3545;">0</span>
     </div>
   </div>
+
+  <div class="nav-links">
+    <a href="javascript:history.back()">← Go Back</a>
+    <span>|</span>
+    <a href="../index.html">🏠 Home</a>
+  </div>
 </div>
 
 <script>
@@ -161,7 +228,6 @@
     const p1 = getRandomInt(2, 9);
     const p2 = getRandomInt(2, 9);
 
-    // Multiplication problem generation
     const problemText = `${variable}<sup>${p1}</sup> • ${variable}<sup>${p2}</sup>`;
     currentAnswer = `${variable}^${p1 + p2}`;
 
@@ -177,9 +243,19 @@
     document.getElementById('incorrectVal').textContent = incorrect;
   }
 
-  document.getElementById('caretBtn').addEventListener('click', function() {
+  // Handle Keypad Inputs
+  document.querySelectorAll('.key-btn[data-val]').forEach(button => {
+    button.addEventListener('click', function() {
+      const input = document.getElementById('userInput');
+      input.value += this.getAttribute('data-val');
+      input.focus();
+    });
+  });
+
+  // Handle Backspace Button
+  document.getElementById('backspaceBtn').addEventListener('click', function() {
     const input = document.getElementById('userInput');
-    input.value += '^';
+    input.value = input.value.slice(0, -1);
     input.focus();
   });
 
