@@ -28,15 +28,43 @@
     .problem {
       font-size: 32px;
       font-weight: bold;
-      margin: 15px 0;
+      margin: 15px 0 10px 0;
       color: #333;
       display: flex;
       justify-content: center;
       align-items: center;
-      min-height: 60px;
+      min-height: 50px;
     }
+    
+    /* Live Formatted Math Display */
+    .math-preview {
+      font-size: 28px;
+      font-weight: bold;
+      color: #007bff;
+      min-height: 44px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 12px;
+      background: #f8f9fa;
+      border: 2px dashed #007bff;
+      border-radius: 6px;
+      padding: 4px 10px;
+      box-sizing: border-box;
+    }
+    .math-preview sup {
+      font-size: 0.65em;
+      vertical-align: super;
+      line-height: 0;
+    }
+    .preview-placeholder {
+      font-size: 14px;
+      color: #aaa;
+      font-weight: normal;
+    }
+
     input[type="text"] {
-      font-size: 22px;
+      font-size: 18px;
       padding: 10px;
       width: 100%;
       text-align: center;
@@ -153,6 +181,11 @@
   
   <div class="problem" id="problem">x^5 • x^4</div>
   
+  <!-- Live Math Formatting Display -->
+  <div class="math-preview" id="mathPreview">
+    <span class="preview-placeholder">Your answer preview</span>
+  </div>
+
   <form id="answerForm">
     <input type="text" id="userInput" placeholder="e.g. x^9" autocomplete="off" required>
     
@@ -219,13 +252,59 @@
   let incorrect = 0;
 
   const userInput = document.getElementById('userInput');
+  const mathPreview = document.getElementById('mathPreview');
 
-  // Detect mobile device
+  // Detect mobile device to disable virtual keyboard popups on phones/tablets
   const isMobile = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
 
   if (isMobile) {
     userInput.setAttribute('readonly', 'true');
     userInput.setAttribute('inputmode', 'none');
+  }
+
+  function escapeHtml(str) {
+    return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  // Renders typed/tapped x^9 as x⁹ visually in the preview box
+  function updateMathPreview() {
+    const val = userInput.value.trim();
+    if (!val) {
+      mathPreview.innerHTML = '<span class="preview-placeholder">Your answer preview</span>';
+      return;
+    }
+
+    if (val.includes('^')) {
+      const parts = val.split('^');
+      const base = parts[0] || '';
+      const exp = parts[1] !== undefined ? parts[1] : '';
+      mathPreview.innerHTML = `${escapeHtml(base)}<sup>${escapeHtml(exp)}</sup>`;
+    } else {
+      mathPreview.innerHTML = escapeHtml(val);
+    }
+  }
+
+  // Normalizes unicode superscripts (if pasted or typed) back into x^9 format
+  function cleanAnswer(text) {
+    const revMap = {
+      '⁰':'0', '¹':'1', '²':'2', '³':'3', '⁴':'4',
+      '⁵':'5', '⁶':'6', '⁷':'7', '⁸':'8', '⁹':'9', '⁻':'-'
+    };
+    let normalized = '';
+    let inExp = false;
+    for (let char of text) {
+      if (revMap[char]) {
+        if (!inExp) {
+          normalized += '^';
+          inExp = true;
+        }
+        normalized += revMap[char];
+      } else {
+        if (char !== '^') inExp = false;
+        normalized += char;
+      }
+    }
+    return normalized.trim().toLowerCase().replace(/\s+/g, '');
   }
 
   function getRandomInt(min, max) {
@@ -242,6 +321,7 @@
 
     document.getElementById('problem').innerHTML = problemText;
     userInput.value = '';
+    updateMathPreview();
     
     if (!isMobile) {
       userInput.focus();
@@ -255,10 +335,16 @@
     document.getElementById('incorrectVal').textContent = incorrect;
   }
 
-  // Handle Keypad Inputs
+  // Handle typing input from physical keyboards
+  userInput.addEventListener('input', function() {
+    updateMathPreview();
+  });
+
+  // Handle Keypad Buttons
   document.querySelectorAll('.key-btn[data-val]').forEach(button => {
     button.addEventListener('click', function() {
       userInput.value += this.getAttribute('data-val');
+      updateMathPreview();
       if (!isMobile) userInput.focus();
     });
   });
@@ -266,17 +352,19 @@
   // Handle Backspace Button
   document.getElementById('backspaceBtn').addEventListener('click', function() {
     userInput.value = userInput.value.slice(0, -1);
+    updateMathPreview();
     if (!isMobile) userInput.focus();
   });
 
+  // Handle Answer Validation
   document.getElementById('answerForm').addEventListener('submit', function(e) {
     e.preventDefault();
-    const input = userInput.value.trim().toLowerCase().replace(/\s+/g, '');
+    const userSubmission = cleanAnswer(userInput.value);
     const feedback = document.getElementById('feedback');
 
     total++;
 
-    if (input === currentAnswer) {
+    if (userSubmission === currentAnswer) {
       feedback.textContent = "Correct!";
       feedback.className = "feedback correct";
       streak++;
