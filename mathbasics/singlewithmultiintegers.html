@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mixed Integer Addition & Subtraction Practice</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f7f6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 15px;
+      box-sizing: border-box;
+    }
+    .card {
+      background: white;
+      padding: 25px 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      text-align: center;
+      max-width: 400px;
+      width: 100%;
+    }
+    .problem {
+      font-size: 38px;
+      font-weight: bold;
+      margin: 15px 0 10px 0;
+      color: #333;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 50px;
+    }
+    input[type="text"] {
+      font-size: 20px;
+      padding: 10px;
+      width: 100%;
+      text-align: center;
+      border: 2px solid #ccc;
+      border-radius: 6px;
+      outline: none;
+      box-sizing: border-box;
+      background-color: #fff;
+    }
+    input[type="text"]:focus {
+      border-color: #007bff;
+    }
+    .submit-btn {
+      margin-top: 12px;
+      width: 100%;
+      padding: 12px;
+      font-size: 18px;
+      font-weight: bold;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .submit-btn:hover {
+      background-color: #0056b3;
+    }
+
+    .keypad {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 15px;
+    }
+    .key-btn {
+      padding: 12px 0;
+      font-size: 20px;
+      font-weight: bold;
+      background-color: #e9ecef;
+      color: #333;
+      border: 1px solid #ced4da;
+      border-radius: 6px;
+      cursor: pointer;
+      user-select: none;
+      touch-action: manipulation;
+    }
+    .key-btn:active {
+      background-color: #adb5bd;
+    }
+    .key-btn.action {
+      background-color: #6c757d;
+      color: white;
+      border-color: #5a6268;
+    }
+    .key-btn.action:active {
+      background-color: #495057;
+    }
+
+    .feedback {
+      margin-top: 15px;
+      font-size: 18px;
+      font-weight: bold;
+      height: 24px;
+    }
+    .correct { color: #28a745; }
+    .incorrect { color: #dc3545; }
+    .stats-container {
+      margin-top: 25px;
+      padding-top: 15px;
+      border-top: 1px solid #eee;
+      display: flex;
+      justify-content: space-around;
+      font-size: 14px;
+      color: #555;
+    }
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .stat-value {
+      font-weight: bold;
+      font-size: 16px;
+      color: #333;
+    }
+    .nav-links {
+      margin-top: 18px;
+      padding-top: 12px;
+      border-top: 1px dashed #eee;
+      font-size: 14px;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      align-items: center;
+    }
+    .nav-links a {
+      color: #007bff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .nav-links a:hover {
+      text-decoration: underline;
+    }
+    .nav-links span {
+      color: #ccc;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h2>Integer Operations Practice</h2>
+  <p style="margin: 0 0 15px 0; font-size: 14px; color: #666;">Adding and subtracting single-digit and double-digit integers</p>
+
+  <div class="problem" id="problem">7 + (-42)</div>
+  
+  <form id="answerForm">
+    <input type="text" id="userInput" placeholder="e.g. -42 or 68" autocomplete="off" required>
+    
+    <div class="keypad">
+      <!-- Row 1 -->
+      <button type="button" class="key-btn" data-val="1">1</button>
+      <button type="button" class="key-btn" data-val="2">2</button>
+      <button type="button" class="key-btn" data-val="3">3</button>
+      <button type="button" class="key-btn action" id="minusBtn">-</button>
+      
+      <!-- Row 2 -->
+      <button type="button" class="key-btn" data-val="4">4</button>
+      <button type="button" class="key-btn" data-val="5">5</button>
+      <button type="button" class="key-btn" data-val="6">6</button>
+      <button type="button" class="key-btn action" id="backspaceBtn">⌫</button>
+      
+      <!-- Row 3 -->
+      <button type="button" class="key-btn" data-val="7">7</button>
+      <button type="button" class="key-btn" data-val="8">8</button>
+      <button type="button" class="key-btn" data-val="9">9</button>
+      <button type="button" class="key-btn" data-val="0">0</button>
+    </div>
+
+    <button type="submit" id="submitBtn" class="submit-btn">Submit</button>
+  </form>
+
+  <div class="feedback" id="feedback"></div>
+
+  <div class="stats-container">
+    <div class="stat-item">
+      <span>Streak</span>
+      <span class="stat-value" id="streakVal">0</span>
+    </div>
+    <div class="stat-item">
+      <span>Total</span>
+      <span class="stat-value" id="totalVal">0</span>
+    </div>
+    <div class="stat-item">
+      <span>Correct</span>
+      <span class="stat-value" id="correctVal" style="color: #28a745;">0</span>
+    </div>
+    <div class="stat-item">
+      <span>Incorrect</span>
+      <span class="stat-value" id="incorrectVal" style="color: #dc3545;">0</span>
+    </div>
+  </div>
+
+  <div class="nav-links">
+    <a href="javascript:history.back()">← Go Back</a>
+    <span>|</span>
+    <a href="../index.html">🏠 Home</a>
+  </div>
+</div>
+
+<script>
+  let currentAnswer = 0;
+  let streak = 0;
+  let total = 0;
+  let correct = 0;
+  let incorrect = 0;
+  
+  // Tracks if the student has already made their first attempt on the active problem
+  let hasAttemptedCurrentProblem = false;
+
+  const userInput = document.getElementById('userInput');
+
+  // Detect mobile device to disable native virtual keyboards
+  const isMobile = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+
+  if (isMobile) {
+    userInput.setAttribute('readonly', 'true');
+    userInput.setAttribute('inputmode', 'none');
+  }
+
+  // Range: [-9, -1] U [1, 9]
+  function getRandomSingleDigit() {
+    let num = 0;
+    while (num === 0) {
+      num = Math.floor(Math.random() * 19) - 9;
+    }
+    return num;
+  }
+
+  // Range: [-99, -10] U [10, 99]
+  function getRandomDoubleDigit() {
+    let num = 0;
+    while (Math.abs(num) < 10) {
+      num = Math.floor(Math.random() * 199) - 99;
+    }
+    return num;
+  }
+
+  function formatNum(num, isFirst = false) {
+    if (num < 0) {
+      return isFirst ? `-${Math.abs(num)}` : `(${num})`;
+    }
+    return `${num}`;
+  }
+
+  function generateProblem() {
+    const singleDigit = getRandomSingleDigit();
+    const doubleDigit = getRandomDoubleDigit();
+
+    // Randomize whether single-digit is first or second
+    const isSingleDigitFirst = Math.random() < 0.5;
+    const n1 = isSingleDigitFirst ? singleDigit : doubleDigit;
+    const n2 = isSingleDigitFirst ? doubleDigit : singleDigit;
+
+    // Randomize addition vs. subtraction
+    const isAddition = Math.random() < 0.5;
+    const operator = isAddition ? '+' : '-';
+
+    currentAnswer = isAddition ? n1 + n2 : n1 - n2;
+    hasAttemptedCurrentProblem = false; // Reset attempt tracker for new problem
+    
+    document.getElementById('problem').textContent = `${formatNum(n1, true)} ${operator} ${formatNum(n2)}`;
+    userInput.value = '';
+
+    if (!isMobile) {
+      userInput.focus();
+    }
+  }
+
+  function updateStats() {
+    document.getElementById('streakVal').textContent = streak;
+    document.getElementById('totalVal').textContent = total;
+    document.getElementById('correctVal').textContent = correct;
+    document.getElementById('incorrectVal').textContent = incorrect;
+  }
+
+  // Keypad Event Listeners
+  document.querySelectorAll('.key-btn[data-val]').forEach(button => {
+    button.addEventListener('click', function() {
+      userInput.value += this.getAttribute('data-val');
+      if (!isMobile) userInput.focus();
+    });
+  });
+
+  document.getElementById('minusBtn').addEventListener('click', function() {
+    if (userInput.value.startsWith('-')) {
+      userInput.value = userInput.value.slice(1);
+    } else {
+      userInput.value = '-' + userInput.value;
+    }
+    if (!isMobile) userInput.focus();
+  });
+
+  document.getElementById('backspaceBtn').addEventListener('click', function() {
+    userInput.value = userInput.value.slice(0, -1);
+    if (!isMobile) userInput.focus();
+  });
+
+  document.getElementById('answerForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const rawInput = userInput.value.trim();
+    const input = parseInt(rawInput, 10);
+    const feedback = document.getElementById('feedback');
+
+    if (isNaN(input)) return;
+
+    if (input === currentAnswer) {
+      feedback.textContent = "Correct!";
+      feedback.className = "feedback correct";
+      
+      if (!hasAttemptedCurrentProblem) {
+        // First try was correct
+        total++;
+        correct++;
+        streak++;
+      } else {
+        // Correct on a repeat try (doesn't increment total or correct counts)
+        streak++;
+      }
+      
+      updateStats();
+      setTimeout(() => {
+        feedback.textContent = "";
+        generateProblem();
+      }, 1000);
+    } else {
+      // Show "Try again!" along with the expected answer
+      feedback.textContent = `Try again! (Answer: ${currentAnswer})`;
+      feedback.className = "feedback incorrect";
+      
+      if (!hasAttemptedCurrentProblem) {
+        // First try was incorrect
+        total++;
+        incorrect++;
+        hasAttemptedCurrentProblem = true; // Lock main counts for subsequent tries on this question
+      }
+      
+      streak = 0;
+      updateStats();
+    }
+  });
+
+  generateProblem();
+</script>
+
+</body>
+</html>
