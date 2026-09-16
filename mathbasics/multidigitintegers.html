@@ -45,9 +45,20 @@
       outline: none;
       box-sizing: border-box;
       background-color: #fff;
+      transition: background-color 0.2s ease, border-color 0.2s ease;
     }
     input[type="text"]:focus {
       border-color: #007bff;
+    }
+    input[type="text"].input-correct {
+      border-color: #28a745 !important;
+      background-color: #d4edda !important;
+      color: #155724;
+    }
+    input[type="text"].input-incorrect {
+      border-color: #dc3545 !important;
+      background-color: #f8d7da !important;
+      color: #721c24;
     }
     .submit-btn {
       margin-top: 12px;
@@ -227,6 +238,10 @@
     userInput.setAttribute('inputmode', 'none');
   }
 
+  function clearInputStatus() {
+    userInput.classList.remove('input-correct', 'input-incorrect');
+  }
+
   // Range: [-99, -10] U [10, 99]
   function getRandomDoubleDigit() {
     let num = 0;
@@ -256,6 +271,7 @@
     
     document.getElementById('problem').textContent = `${formatNum(n1, true)} ${operator} ${formatNum(n2)}`;
     userInput.value = '';
+    clearInputStatus();
 
     if (!isMobile) {
       userInput.focus();
@@ -272,12 +288,14 @@
   // Keypad Event Listeners
   document.querySelectorAll('.key-btn[data-val]').forEach(button => {
     button.addEventListener('click', function() {
+      clearInputStatus();
       userInput.value += this.getAttribute('data-val');
       if (!isMobile) userInput.focus();
     });
   });
 
   document.getElementById('minusBtn').addEventListener('click', function() {
+    clearInputStatus();
     if (userInput.value.startsWith('-')) {
       userInput.value = userInput.value.slice(1);
     } else {
@@ -287,9 +305,12 @@
   });
 
   document.getElementById('backspaceBtn').addEventListener('click', function() {
+    clearInputStatus();
     userInput.value = userInput.value.slice(0, -1);
     if (!isMobile) userInput.focus();
   });
+
+  userInput.addEventListener('input', clearInputStatus);
 
   document.getElementById('answerForm').addEventListener('submit', function(e) {
     e.preventDefault();
@@ -300,6 +321,9 @@
     if (isNaN(input)) return;
 
     if (input === currentAnswer) {
+      userInput.classList.remove('input-incorrect');
+      userInput.classList.add('input-correct');
+
       feedback.textContent = "Correct!";
       feedback.className = "feedback correct";
       
@@ -319,6 +343,9 @@
         generateProblem();
       }, 1000);
     } else {
+      userInput.classList.remove('input-correct');
+      userInput.classList.add('input-incorrect');
+
       // Show "Try again!" along with the expected answer
       feedback.textContent = `Try again! (Answer: ${currentAnswer})`;
       feedback.className = "feedback incorrect";

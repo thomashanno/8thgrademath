@@ -35,6 +35,7 @@
       align-items: center;
       min-height: 50px;
     }
+
     input[type="text"] {
       font-size: 20px;
       padding: 10px;
@@ -45,10 +46,24 @@
       outline: none;
       box-sizing: border-box;
       background-color: #fff;
+      transition: border-color 0.2s, background-color 0.2s;
     }
     input[type="text"]:focus {
       border-color: #007bff;
     }
+
+    /* Input validation feedback styles */
+    input[type="text"].input-correct {
+      border-color: #28a745 !important;
+      background-color: #e8f8ec !important;
+      color: #155724;
+    }
+    input[type="text"].input-incorrect {
+      border-color: #dc3545 !important;
+      background-color: #fdf2f2 !important;
+      color: #721c24;
+    }
+
     .submit-btn {
       margin-top: 12px;
       width: 100%;
@@ -224,6 +239,10 @@
     userInput.setAttribute('inputmode', 'none');
   }
 
+  function resetInputStyle() {
+    userInput.classList.remove('input-correct', 'input-incorrect');
+  }
+
   // Generates single digit integer between -9 and 9 (excluding 0 for cleaner questions)
   function getRandomInteger() {
     let num = 0;
@@ -255,6 +274,7 @@
     }
 
     userInput.value = '';
+    resetInputStyle();
 
     if (!isMobile) {
       userInput.focus();
@@ -268,9 +288,13 @@
     document.getElementById('incorrectVal').textContent = incorrect;
   }
 
+  // Handle typing input from physical keyboards
+  userInput.addEventListener('input', resetInputStyle);
+
   // Handle Keypad Digit Buttons
   document.querySelectorAll('.key-btn[data-val]').forEach(button => {
     button.addEventListener('click', function() {
+      resetInputStyle();
       userInput.value += this.getAttribute('data-val');
       if (!isMobile) userInput.focus();
     });
@@ -278,6 +302,7 @@
 
   // Handle Minus Button (Toggles leading negative sign or inserts '-')
   document.getElementById('minusBtn').addEventListener('click', function() {
+    resetInputStyle();
     if (userInput.value.startsWith('-')) {
       userInput.value = userInput.value.slice(1);
     } else {
@@ -288,6 +313,7 @@
 
   // Handle Backspace Button
   document.getElementById('backspaceBtn').addEventListener('click', function() {
+    resetInputStyle();
     userInput.value = userInput.value.slice(0, -1);
     if (!isMobile) userInput.focus();
   });
@@ -306,6 +332,10 @@
     if (input === currentAnswer) {
       feedback.textContent = "Correct!";
       feedback.className = "feedback correct";
+
+      userInput.classList.remove('input-incorrect');
+      userInput.classList.add('input-correct');
+
       streak++;
       correct++;
       updateStats();
@@ -316,6 +346,10 @@
     } else {
       feedback.textContent = `Try again! (Answer: ${currentAnswer})`;
       feedback.className = "feedback incorrect";
+
+      userInput.classList.remove('input-correct');
+      userInput.classList.add('input-incorrect');
+
       streak = 0;
       incorrect++;
       updateStats();
