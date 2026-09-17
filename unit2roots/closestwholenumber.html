@@ -181,19 +181,23 @@
   let hasAttemptedCurrentProblem = false;
 
   function generateProblem() {
-    // List of non-perfect square integers between 2 and 99
     const perfectSquares = [1, 4, 9, 16, 25, 36, 49, 64, 81, 100];
     let num;
-    
+    let sqrtVal;
+    let decimalPart;
+
     do {
       num = Math.floor(Math.random() * 98) + 2; // Range: 2 to 99
-    } while (perfectSquares.includes(num));
+      sqrtVal = Math.sqrt(num);
+      decimalPart = sqrtVal - Math.floor(sqrtVal);
+      
+      // Exclude perfect squares and numbers close to x.5 (0.35 to 0.65)
+    } while (perfectSquares.includes(num) || (decimalPart >= 0.35 && decimalPart <= 0.65));
 
-    const lowerBound = Math.floor(Math.sqrt(num));
+    const lowerBound = Math.floor(sqrtVal);
     const upperBound = lowerBound + 1;
 
-    // Determine mathematically which integer is closest
-    correctAnswer = Math.round(Math.sqrt(num));
+    correctAnswer = Math.round(sqrtVal);
 
     document.getElementById('problem').innerHTML = `√${num}`;
 
