@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perfect Squares Practice</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f7f6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 15px;
+      box-sizing: border-box;
+    }
+    .card {
+      background: white;
+      padding: 25px 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      text-align: center;
+      max-width: 400px;
+      width: 100%;
+    }
+    .problem {
+      font-size: 36px;
+      font-weight: bold;
+      margin: 15px 0 10px 0;
+      color: #333;
+      min-height: 70px;
+      line-height: 70px;
+    }
+
+    .problem sup, .feedback sup {
+      vertical-align: super;
+      font-size: 0.65em;
+      line-height: 0;
+    }
+
+    .instruction {
+      margin: 0 0 15px 0;
+      font-size: 14px;
+      color: #666;
+    }
+
+    input[type="text"] {
+      font-size: 20px;
+      padding: 10px;
+      width: 100%;
+      text-align: center;
+      border: 2px solid #ccc;
+      border-radius: 6px;
+      outline: none;
+      box-sizing: border-box;
+      background-color: #fff;
+      transition: border-color 0.2s, background-color 0.2s;
+    }
+    input[type="text"]:focus {
+      border-color: #007bff;
+    }
+
+    /* Input validation feedback styles */
+    input[type="text"].input-correct {
+      border-color: #28a745 !important;
+      background-color: #e8f8ec !important;
+      color: #155724;
+    }
+    input[type="text"].input-incorrect {
+      border-color: #dc3545 !important;
+      background-color: #fdf2f2 !important;
+      color: #721c24;
+    }
+
+    .submit-btn {
+      margin-top: 12px;
+      width: 100%;
+      padding: 12px;
+      font-size: 18px;
+      font-weight: bold;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .submit-btn:hover {
+      background-color: #0056b3;
+    }
+
+    /* Keypad Grid Layout */
+    .keypad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 15px;
+    }
+    .key-btn {
+      padding: 14px 0;
+      font-size: 22px;
+      font-weight: bold;
+      background-color: #e9ecef;
+      color: #333;
+      border: 1px solid #ced4da;
+      border-radius: 6px;
+      cursor: pointer;
+      user-select: none;
+      touch-action: manipulation;
+    }
+    .key-btn:active {
+      background-color: #adb5bd;
+    }
+    .key-btn.action {
+      background-color: #6c757d;
+      color: white;
+      border-color: #5a6268;
+    }
+    .key-btn.action:active {
+      background-color: #495057;
+    }
+
+    .feedback {
+      margin-top: 15px;
+      font-size: 18px;
+      font-weight: bold;
+      min-height: 40px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+    }
+    .correct { color: #28a745; }
+    .incorrect { color: #dc3545; }
+    
+    .stats-container {
+      margin-top: 25px;
+      padding-top: 15px;
+      border-top: 1px solid #eee;
+      display: flex;
+      justify-content: space-around;
+      font-size: 14px;
+      color: #555;
+    }
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .stat-value {
+      font-weight: bold;
+      font-size: 16px;
+      color: #333;
+    }
+    .nav-links {
+      margin-top: 18px;
+      padding-top: 12px;
+      border-top: 1px dashed #eee;
+      font-size: 14px;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      align-items: center;
+    }
+    .nav-links a {
+      color: #007bff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .nav-links a:hover {
+      text-decoration: underline;
+    }
+    .nav-links span {
+      color: #ccc;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h2>Perfect Squares Practice</h2>
+  <p class="instruction">Evaluate the square (1² through 20²)</p>
+
+  <div class="problem" id="problem">12<sup>2</sup></div>
+  
+  <form id="answerForm">
+    <input type="text" id="userInput" placeholder="e.g. 144" autocomplete="off" required="">
+    
+    <div class="keypad">
+      <!-- Row 1 -->
+      <button type="button" class="key-btn" data-val="1">1</button>
+      <button type="button" class="key-btn" data-val="2">2</button>
+      <button type="button" class="key-btn" data-val="3">3</button>
+
+      <!-- Row 2 -->
+      <button type="button" class="key-btn" data-val="4">4</button>
+      <button type="button" class="key-btn" data-val="5">5</button>
+      <button type="button" class="key-btn" data-val="6">6</button>
+
+      <!-- Row 3 -->
+      <button type="button" class="key-btn" data-val="7">7</button>
+      <button type="button" class="key-btn" data-val="8">8</button>
+      <button type="button" class="key-btn" data-val="9">9</button>
+
+      <!-- Row 4 -->
+      <button type="button" class="key-btn action" id="clearBtn">C</button>
+      <button type="button" class="key-btn" data-val="0">0</button>
+      <button type="button" class="key-btn action" id="backspaceBtn">⌫</button>
+    </div>
+
+    <button type="submit" id="submitBtn" class="submit-btn">Submit</button>
+  </form>
+
+  <div class="feedback" id="feedback"></div>
+
+  <div class="stats-container">
+    <div class="stat-item">
+      <span>Streak</span>
+      <span class="stat-value" id="streakVal">0</span>
+    </div>
+    <div class="stat-item">
+      <span>Total</span>
+      <span class="stat-value" id="totalVal">0</span>
+    </div>
+    <div class="stat-item">
+      <span>Correct</span>
+      <span class="stat-value" id="correctVal" style="color: #28a745;">0</span>
+    </div>
+    <div class="stat-item">
+      <span>Incorrect</span>
+      <span class="stat-value" id="incorrectVal" style="color: #dc3545;">0</span>
+    </div>
+  </div>
+
+  <div class="nav-links">
+    <a href="javascript:history.back()">← Go Back</a>
+    <span>|</span>
+    <a href="https://thomashanno.github.io/8thgrademath/index.html">🏠 Home</a>
+  </div>
+</div>
+
+<script>
+  let currentAnswer = "";
+  let streak = 0;
+  let total = 0;
+  let correct = 0;
+  let incorrect = 0;
+  let hasAttemptedCurrentProblem = false;
+
+  const userInput = document.getElementById('userInput');
+
+  // Detect mobile devices to disable native virtual keyboard pop-up
+  const isMobile = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+
+  if (isMobile) {
+    userInput.setAttribute('readonly', 'true');
+    userInput.setAttribute('inputmode', 'none');
+  }
+
+  function resetInputStyle() {
+    userInput.classList.remove('input-correct', 'input-incorrect');
+  }
+
+  function generateProblem() {
+    // Generate random base from 1 through 20
+    const base = Math.floor(Math.random() * 20) + 1; 
+    
+    document.getElementById('problem').innerHTML = `${base}<sup>2</sup>`;
+    currentAnswer = (base * base).toString();
+
+    hasAttemptedCurrentProblem = false;
+    userInput.value = '';
+    resetInputStyle();
+
+    if (!isMobile) {
+      userInput.focus();
+    }
+  }
+
+  function updateStats() {
+    document.getElementById('streakVal').textContent = streak;
+    document.getElementById('totalVal').textContent = total;
+    document.getElementById('correctVal').textContent = correct;
+    document.getElementById('incorrectVal').textContent = incorrect;
+  }
+
+  // Keypad Listener setup
+  document.querySelectorAll('.key-btn[data-val]').forEach(button => {
+    button.addEventListener('click', function() {
+      resetInputStyle();
+      userInput.value += this.getAttribute('data-val');
+      if (!isMobile) userInput.focus();
+    });
+  });
+
+  document.getElementById('backspaceBtn').addEventListener('click', function() {
+    resetInputStyle();
+    userInput.value = userInput.value.slice(0, -1);
+    if (!isMobile) userInput.focus();
+  });
+
+  document.getElementById('clearBtn').addEventListener('click', function() {
+    resetInputStyle();
+    userInput.value = '';
+    if (!isMobile) userInput.focus();
+  });
+
+  userInput.addEventListener('input', resetInputStyle);
+
+  document.getElementById('answerForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const rawInput = userInput.value.trim();
+    const feedback = document.getElementById('feedback');
+
+    if (!rawInput) return;
+
+    if (rawInput === currentAnswer) {
+      feedback.innerHTML = "Correct!";
+      feedback.className = "feedback correct";
+      
+      userInput.classList.remove('input-incorrect');
+      userInput.classList.add('input-correct');
+      
+      if (!hasAttemptedCurrentProblem) {
+        total++;
+        correct++;
+        streak++;
+      } else {
+        streak++;
+      }
+      
+      updateStats();
+      setTimeout(() => {
+        feedback.innerHTML = "";
+        generateProblem();
+      }, 1000);
+    } else {
+      feedback.innerHTML = `Try again! (Answer: ${currentAnswer})`;
+      feedback.className = "feedback incorrect";
+      
+      userInput.classList.remove('input-correct');
+      userInput.classList.add('input-incorrect');
+      
+      if (!hasAttemptedCurrentProblem) {
+        total++;
+        incorrect++;
+        hasAttemptedCurrentProblem = true;
+      }
+      
+      streak = 0;
+      updateStats();
+    }
+  });
+
+  generateProblem();
+</script>
+
+</body>
+</html>

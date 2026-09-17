@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Estimating Square Roots Practice</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f7f6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 15px;
+      box-sizing: border-box;
+    }
+    .card {
+      background: white;
+      padding: 25px 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      text-align: center;
+      max-width: 420px;
+      width: 100%;
+    }
+    .problem {
+      font-size: 36px;
+      font-weight: bold;
+      margin: 15px 0 10px 0;
+      color: #333;
+      min-height: 70px;
+      line-height: 70px;
+    }
+
+    .instruction {
+      margin: 0 0 15px 0;
+      font-size: 14px;
+      color: #666;
+    }
+
+    /* All Choices Layout */
+    .options-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 15px;
+    }
+    .option-btn {
+      padding: 12px 10px;
+      font-size: 16px;
+      font-weight: bold;
+      background-color: #e9ecef;
+      color: #333;
+      border: 2px solid #ced4da;
+      border-radius: 6px;
+      cursor: pointer;
+      user-select: none;
+      touch-action: manipulation;
+      transition: border-color 0.2s, background-color 0.2s;
+    }
+    .option-btn:hover {
+      background-color: #dee2e6;
+    }
+    .option-btn:active {
+      background-color: #adb5bd;
+    }
+
+    /* Validation Feedback Styles */
+    .option-btn.btn-correct {
+      border-color: #28a745 !important;
+      background-color: #e8f8ec !important;
+      color: #155724 !important;
+    }
+    .option-btn.btn-incorrect {
+      border-color: #dc3545 !important;
+      background-color: #fdf2f2 !important;
+      color: #721c24 !important;
+    }
+
+    .feedback {
+      margin-top: 15px;
+      font-size: 18px;
+      font-weight: bold;
+      min-height: 40px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+    }
+    .correct { color: #28a745; }
+    .incorrect { color: #dc3545; }
+    
+    .stats-container {
+      margin-top: 25px;
+      padding-top: 15px;
+      border-top: 1px solid #eee;
+      display: flex;
+      justify-content: space-around;
+      font-size: 14px;
+      color: #555;
+    }
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .stat-value {
+      font-weight: bold;
+      font-size: 16px;
+      color: #333;
+    }
+    .nav-links {
+      margin-top: 18px;
+      padding-top: 12px;
+      border-top: 1px dashed #eee;
+      font-size: 14px;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      align-items: center;
+    }
+    .nav-links a {
+      color: #007bff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .nav-links a:hover {
+      text-decoration: underline;
+    }
+    .nav-links span {
+      color: #ccc;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h2>Estimating Square Roots</h2>
+  <p class="instruction">Which two whole numbers does this square root fall between?</p>
+
+  <div class="problem" id="problem">√65</div>
+  
+  <div class="options-grid" id="optionsGrid"></div>
+
+  <div class="feedback" id="feedback"></div>
+
+  <div class="stats-container">
+    <div class="stat-item">
+      <span>Streak</span>
+      <span class="stat-value" id="streakVal">0</span>
+    </div>
+    <div class="stat-item">
+      <span>Total</span>
+      <span class="stat-value" id="totalVal">0</span>
+    </div>
+    <div class="stat-item">
+      <span>Correct</span>
+      <span class="stat-value" id="correctVal" style="color: #28a745;">0</span>
+    </div>
+    <div class="stat-item">
+      <span>Incorrect</span>
+      <span class="stat-value" id="incorrectVal" style="color: #dc3545;">0</span>
+    </div>
+  </div>
+
+  <div class="nav-links">
+    <a href="javascript:history.back()">← Go Back</a>
+    <span>|</span>
+    <a href="https://thomashanno.github.io/8thgrademath/index.html">🏠 Home</a>
+  </div>
+</div>
+
+<script>
+  let correctAnswerText = "";
+  let streak = 0;
+  let total = 0;
+  let correct = 0;
+  let incorrect = 0;
+  let hasAttemptedCurrentProblem = false;
+
+  function generateProblem() {
+    // Non-perfect squares between 2 and 99
+    const perfectSquares = [1, 4, 9, 16, 25, 36, 49, 64, 81, 100];
+    let num;
+    
+    do {
+      num = Math.floor(Math.random() * 97) + 2; // Range: 2 to 98
+    } while (perfectSquares.includes(num));
+
+    const lowerBound = Math.floor(Math.sqrt(num));
+    const upperBound = lowerBound + 1;
+
+    document.getElementById('problem').innerHTML = `√${num}`;
+    correctAnswerText = `Between ${lowerBound} and ${upperBound}`;
+
+    const grid = document.getElementById('optionsGrid');
+    grid.innerHTML = '';
+    
+    // Generate static list from 1..2 through 9..10
+    for (let i = 1; i <= 9; i++) {
+      const optionText = `Between ${i} and ${i + 1}`;
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'option-btn';
+      btn.textContent = optionText;
+      btn.addEventListener('click', () => handleSelection(btn, optionText));
+      grid.appendChild(btn);
+    }
+
+    hasAttemptedCurrentProblem = false;
+  }
+
+  function handleSelection(selectedBtn, selectedText) {
+    const feedback = document.getElementById('feedback');
+    const allButtons = document.querySelectorAll('.option-btn');
+
+    allButtons.forEach(btn => btn.style.pointerEvents = 'none');
+
+    if (selectedText === correctAnswerText) {
+      feedback.innerHTML = "Correct!";
+      feedback.className = "feedback correct";
+      selectedBtn.classList.add('btn-correct');
+      
+      if (!hasAttemptedCurrentProblem) {
+        total++;
+        correct++;
+        streak++;
+      } else {
+        streak++;
+      }
+      
+      updateStats();
+      setTimeout(() => {
+        feedback.innerHTML = "";
+        generateProblem();
+      }, 1000);
+    } else {
+      feedback.innerHTML = `Try again! (${correctAnswerText})`;
+      feedback.className = "feedback incorrect";
+      selectedBtn.classList.add('btn-incorrect');
+      
+      if (!hasAttemptedCurrentProblem) {
+        total++;
+        incorrect++;
+        hasAttemptedCurrentProblem = true;
+      }
+      
+      streak = 0;
+      updateStats();
+
+      setTimeout(() => {
+        allButtons.forEach(btn => {
+          if (!btn.classList.contains('btn-incorrect')) {
+            btn.style.pointerEvents = 'auto';
+          }
+        });
+      }, 800);
+    }
+  }
+
+  function updateStats() {
+    document.getElementById('streakVal').textContent = streak;
+    document.getElementById('totalVal').textContent = total;
+    document.getElementById('correctVal').textContent = correct;
+    document.getElementById('incorrectVal').textContent = incorrect;
+  }
+
+  generateProblem();
+</script>
+
+</body>
+</html>
