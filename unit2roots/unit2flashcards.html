@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Math Vocabulary & Approximations Flashcards</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f7f6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 15px;
+      box-sizing: border-box;
+    }
+    .card-container {
+      background: white;
+      padding: 25px 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      text-align: center;
+      max-width: 420px;
+      width: 100%;
+    }
+    .header {
+      margin-bottom: 15px;
+    }
+    .header h2 {
+      margin: 0 0 5px 0;
+      color: #333;
+    }
+    .instruction {
+      font-size: 13px;
+      color: #666;
+      margin: 0 0 15px 0;
+    }
+
+    /* Progress Bar */
+    .progress-container {
+      width: 100%;
+      background-color: #e9ecef;
+      border-radius: 10px;
+      height: 8px;
+      margin-bottom: 15px;
+      overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background-color: #007bff;
+      transition: width 0.3s ease;
+    }
+
+    /* 3D Flip Card Effect */
+    .flashcard-wrapper {
+      perspective: 1000px;
+      width: 100%;
+      height: 220px;
+      cursor: pointer;
+      margin-bottom: 20px;
+    }
+    .flashcard {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.5s ease;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .flashcard.flipped {
+      transform: rotateY(180deg);
+    }
+    .card-front, .card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      box-sizing: border-box;
+      border-radius: 10px;
+      border: 2px solid #dee2e6;
+      background-color: #f8f9fa;
+    }
+    .card-front {
+      color: #007bff;
+      font-size: 32px;
+      font-weight: bold;
+    }
+    .card-back {
+      background-color: #eef6ff;
+      color: #333;
+      transform: rotateY(180deg);
+      font-size: 22px;
+      font-weight: bold;
+      line-height: 1.5;
+    }
+    .card-back.definition-text {
+      font-size: 17px;
+      font-weight: normal;
+    }
+    .card-hint {
+      position: absolute;
+      bottom: 10px;
+      font-size: 12px;
+      color: #888;
+      font-weight: normal;
+    }
+
+    /* Action & Navigation Buttons */
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    .btn {
+      flex: 1;
+      padding: 10px 14px;
+      font-size: 14px;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.2s, opacity 0.2s;
+    }
+    .btn:active {
+      opacity: 0.8;
+    }
+    .btn-nav {
+      background-color: #6c757d;
+      color: white;
+    }
+    .btn-correct {
+      background-color: #28a745;
+      color: white;
+    }
+    .btn-incorrect {
+      background-color: #dc3545;
+      color: white;
+    }
+    .btn-secondary {
+      background-color: #e2e6ea;
+      color: #333;
+      border: 1px solid #ced4da;
+    }
+
+    .stats-container {
+      margin-top: 20px;
+      padding-top: 15px;
+      border-top: 1px solid #eee;
+      display: flex;
+      justify-content: space-around;
+      font-size: 14px;
+      color: #555;
+    }
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .stat-value {
+      font-weight: bold;
+      font-size: 16px;
+      color: #333;
+    }
+
+    .nav-links {
+      margin-top: 18px;
+      padding-top: 12px;
+      border-top: 1px dashed #eee;
+      font-size: 14px;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      align-items: center;
+    }
+    .nav-links a {
+      color: #007bff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .nav-links a:hover {
+      text-decoration: underline;
+    }
+    .nav-links span {
+      color: #ccc;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card-container">
+  <div class="header">
+    <h2>Vocabulary & Approximations</h2>
+    <p class="instruction">Tap card to flip answer</p>
+  </div>
+
+  <div class="progress-container">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+
+  <div class="flashcard-wrapper" id="cardWrapper">
+    <div class="flashcard" id="flashcard">
+      <div class="card-front">
+        <span id="termText">Square Root</span>
+        <span class="card-hint">Tap to flip 🔄</span>
+      </div>
+      <div class="card-back" id="cardBack">
+        <span id="defText">A value that, when multiplied by itself, gives the original number.</span>
+        <span class="card-hint">Tap to flip 🔄</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Response Assessment Buttons -->
+  <div class="controls">
+    <button type="button" class="btn btn-incorrect" id="btnWrong">Needs Practice 👎</button>
+    <button type="button" class="btn btn-correct" id="btnRight">Got It! 👍</button>
+  </div>
+
+  <!-- Utility Controls -->
+  <div class="controls">
+    <button type="button" class="btn btn-nav" id="btnPrev">← Prev</button>
+    <button type="button" class="btn btn-secondary" id="btnShuffle">Shuffle 🔀</button>
+    <button type="button" class="btn btn-nav" id="btnNext">Next →</button>
+  </div>
+
+  <div class="stats-container">
+    <div class="stat-item">
+      <span>Card</span>
+      <span class="stat-value" id="cardNumVal">1 / 9</span>
+    </div>
+    <div class="stat-item">
+      <span>Mastered</span>
+      <span class="stat-value" id="masteredVal" style="color: #28a745;">0</span>
+    </div>
+    <div class="stat-item">
+      <span>Reviewing</span>
+      <span class="stat-value" id="reviewVal" style="color: #dc3545;">9</span>
+    </div>
+  </div>
+
+  <div class="nav-links">
+    <a href="javascript:history.back()">← Go Back</a>
+    <span>|</span>
+    <a href="https://thomashanno.github.io/8thgrademath/index.html">🏠 Home</a>
+  </div>
+</div>
+
+<script>
+  const vocabulary = [
+    {
+      term: "Square",
+      definition: "To multiply a number by itself (e.g., 5² = 5 × 5 = 25).",
+      isShort: false
+    },
+    {
+      term: "Square Root",
+      definition: "A number that, when multiplied by itself, gives the original number (e.g., √25 = 5).",
+      isShort: false
+    },
+    {
+      term: "Cube",
+      definition: "To multiply a number by itself twice (e.g., 2³ = 2 × 2 × 2 = 8).",
+      isShort: false
+    },
+    {
+      term: "Cube Root",
+      definition: "A number that, when multiplied by itself twice, gives the original number (e.g., ∛8 = 2).",
+      isShort: false
+    },
+    {
+      term: "Rational Number",
+      definition: "A number that can be written as a fraction a/b of two integers (includes terminating and repeating decimals).",
+      isShort: false
+    },
+    {
+      term: "Irrational Number",
+      definition: "A number that cannot be written as a simple fraction; its decimal goes on forever without repeating.",
+      isShort: false
+    },
+    {
+      term: "Pi (π)",
+      definition: "An irrational number representing the ratio of a circle's circumference to its diameter (approximately 3.14159...).",
+      isShort: false
+    },
+    {
+      term: "√2",
+      definition: "≈ 1.41",
+      isShort: true
+    },
+    {
+      term: "√3",
+      definition: "≈ 1.73",
+      isShort: true
+    }
+  ];
+
+  let deck = [...vocabulary];
+  let currentIndex = 0;
+  let masteredSet = new Set();
+
+  const flashcard = document.getElementById('flashcard');
+  const cardWrapper = document.getElementById('cardWrapper');
+  const termText = document.getElementById('termText');
+  const defText = document.getElementById('defText');
+  const cardBack = document.getElementById('cardBack');
+
+  function renderCard() {
+    // Unflip before changing content
+    flashcard.classList.remove('flipped');
+
+    setTimeout(() => {
+      const current = deck[currentIndex];
+      termText.textContent = current.term;
+      defText.textContent = current.definition;
+
+      // Adjust text styling for short values vs long definitions
+      if (current.isShort) {
+        cardBack.classList.remove('definition-text');
+      } else {
+        cardBack.classList.add('definition-text');
+      }
+
+      // Update Card Counter & Progress
+      document.getElementById('cardNumVal').textContent = `${currentIndex + 1} / ${deck.length}`;
+      document.getElementById('masteredVal').textContent = masteredSet.size;
+      document.getElementById('reviewVal').textContent = vocabulary.length - masteredSet.size;
+
+      const progressPercent = ((currentIndex + 1) / deck.length) * 100;
+      document.getElementById('progressBar').style.width = `${progressPercent}%`;
+    }, 150);
+  }
+
+  // Flip Card Handler
+  cardWrapper.addEventListener('click', () => {
+    flashcard.classList.toggle('flipped');
+  });
+
+  // Navigation
+  document.getElementById('btnNext').addEventListener('click', () => {
+    if (currentIndex < deck.length - 1) {
+      currentIndex++;
+      renderCard();
+    } else {
+      currentIndex = 0; // Loop back
+      renderCard();
+    }
+  });
+
+  document.getElementById('btnPrev').addEventListener('click', () => {
+    if (currentIndex > 0) {
+      currentIndex--;
+      renderCard();
+    } else {
+      currentIndex = deck.length - 1;
+      renderCard();
+    }
+  });
+
+  // Mastery Tracking
+  document.getElementById('btnRight').addEventListener('click', () => {
+    masteredSet.add(deck[currentIndex].term);
+    nextCard();
+  });
+
+  document.getElementById('btnWrong').addEventListener('click', () => {
+    masteredSet.delete(deck[currentIndex].term);
+    nextCard();
+  });
+
+  function nextCard() {
+    if (currentIndex < deck.length - 1) {
+      currentIndex++;
+    } else {
+      currentIndex = 0;
+    }
+    renderCard();
+  }
+
+  // Shuffle Deck
+  document.getElementById('btnShuffle').addEventListener('click', () => {
+    for (let i = deck.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [deck[i], deck[j]] = [deck[j], deck[i]];
+    }
+    currentIndex = 0;
+    renderCard();
+  });
+
+  renderCard();
+</script>
+
+</body>
+</html>
