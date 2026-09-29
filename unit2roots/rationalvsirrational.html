@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rational vs Irrational Practice</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f7f6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 15px;
+      box-sizing: border-box;
+    }
+    .card {
+      background: white;
+      padding: 25px 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      text-align: center;
+      max-width: 420px;
+      width: 100%;
+    }
+    .problem {
+      font-size: 38px;
+      font-weight: bold;
+      margin: 15px 0 10px 0;
+      color: #333;
+      min-height: 70px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .instruction {
+      margin: 0 0 15px 0;
+      font-size: 14px;
+      color: #666;
+    }
+
+    /* Repeating decimal overline formatting */
+    .overline {
+      text-decoration: overline;
+    }
+
+    /* 2-Choice Grid Layout */
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .option-btn {
+      padding: 16px 10px;
+      font-size: 20px;
+      font-weight: bold;
+      background-color: #e9ecef;
+      color: #333;
+      border: 2px solid #ced4da;
+      border-radius: 6px;
+      cursor: pointer;
+      user-select: none;
+      touch-action: manipulation;
+      transition: border-color 0.2s, background-color 0.2s;
+    }
+    .option-btn:hover {
+      background-color: #dee2e6;
+    }
+    .option-btn:active {
+      background-color: #adb5bd;
+    }
+
+    /* Validation Feedback Styles */
+    .option-btn.btn-correct {
+      border-color: #28a745 !important;
+      background-color: #e8f8ec !important;
+      color: #155724 !important;
+    }
+    .option-btn.btn-incorrect {
+      border-color: #dc3545 !important;
+      background-color: #fdf2f2 !important;
+      color: #721c24 !important;
+    }
+
+    .feedback {
+      margin-top: 15px;
+      font-size: 16px;
+      font-weight: bold;
+      min-height: 48px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 0 5px;
+      line-height: 1.3;
+    }
+    .correct { color: #28a745; }
+    .incorrect { color: #dc3545; }
+    
+    .stats-container {
+      margin-top: 25px;
+      padding-top: 15px;
+      border-top: 1px solid #eee;
+      display: flex;
+      justify-content: space-around;
+      font-size: 14px;
+      color: #555;
+    }
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .stat-value {
+      font-weight: bold;
+      font-size: 16px;
+      color: #333;
+    }
+    .nav-links {
+      margin-top: 18px;
+      padding-top: 12px;
+      border-top: 1px dashed #eee;
+      font-size: 14px;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      align-items: center;
+    }
+    .nav-links a {
+      color: #007bff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .nav-links a:hover {
+      text-decoration: underline;
+    }
+    .nav-links span {
+      color: #ccc;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h2>Rational vs. Irrational</h2>
+  <p class="instruction">Is this number rational or irrational?</p>
+
+  <div class="problem" id="problem">√15</div>
+  
+  <div class="options-grid" id="optionsGrid">
+    <button type="button" class="option-btn" id="btnRational">Rational</button>
+    <button type="button" class="option-btn" id="btnIrrational">Irrational</button>
+  </div>
+
+  <div class="feedback" id="feedback"></div>
+
+  <div class="stats-container">
+    <div class="stat-item">
+      <span>Streak</span>
+      <span class="stat-value" id="streakVal">0</span>
+    </div>
+    <div class="stat-item">
+      <span>Total</span>
+      <span class="stat-value" id="totalVal">0</span>
+    </div>
+    <div class="stat-item">
+      <span>Correct</span>
+      <span class="stat-value" id="correctVal" style="color: #28a745;">0</span>
+    </div>
+    <div class="stat-item">
+      <span>Incorrect</span>
+      <span class="stat-value" id="incorrectVal" style="color: #dc3545;">0</span>
+    </div>
+  </div>
+
+  <div class="nav-links">
+    <a href="javascript:history.back()">← Go Back</a>
+    <span>|</span>
+    <a href="https://thomashanno.github.io/8thgrademath/index.html">🏠 Home</a>
+  </div>
+</div>
+
+<script>
+  let currentProblem = null;
+  let streak = 0;
+  let total = 0;
+  let correct = 0;
+  let incorrect = 0;
+  let hasAttemptedCurrentProblem = false;
+
+  const perfectSquares = [1, 4, 9, 16, 25, 36, 49, 64, 81, 100, 121, 144];
+
+  function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  function generateProblem() {
+    // Problem Generators array representing varied math representations
+    const categoryChoice = getRandomInt(1, 7);
+    let displayHtml = "";
+    let isRational = true;
+    let reason = "";
+
+    switch(categoryChoice) {
+      case 1: // Whole Numbers & Integers
+        const intVal = getRandomInt(-20, 25);
+        displayHtml = `${intVal}`;
+        isRational = true;
+        reason = `${intVal} is an integer.`;
+        break;
+
+      case 2: // Square Roots of Perfect Squares
+        const root = getRandomInt(1, 12);
+        const sq = root * root;
+        displayHtml = `√${sq}`;
+        isRational = true;
+        reason = `√${sq} equals ${root}, which is a whole number.`;
+        break;
+
+      case 3: // Square Roots of Non-Perfect Squares
+        let nonSq;
+        do {
+          nonSq = getRandomInt(2, 99);
+        } while (perfectSquares.includes(nonSq));
+        
+        displayHtml = `√${nonSq}`;
+        isRational = false;
+        reason = `√${nonSq} is not a whole number, so its decimal never ends or repeats.`;
+        break;
+
+      case 4: // Terminating Decimals
+        const termDec = (getRandomInt(-99, 99) / 100).toFixed(getRandomInt(1, 3));
+        displayHtml = `${termDec}`;
+        isRational = true;
+        reason = `${termDec} is a terminating decimal.`;
+        break;
+
+      case 5: // Repeating Decimals
+        const repeatPatterns = [
+          { html: `0.<span class="overline">3</span>`, reason: `0.333... repeats forever.` },
+          { html: `0.<span class="overline">6</span>`, reason: `0.666... repeats forever.` },
+          { html: `0.<span class="overline">16</span>`, reason: `0.1616... repeats forever.` },
+          { html: `1.<span class="overline">45</span>`, reason: `1.4545... repeats forever.` },
+          { html: `0.<span class="overline">7</span>`, reason: `0.777... repeats forever.` }
+        ];
+        const selectedRepeat = repeatPatterns[getRandomInt(0, repeatPatterns.length - 1)];
+        displayHtml = selectedRepeat.html;
+        isRational = true;
+        reason = `${selectedRepeat.reason} All repeating decimals are rational.`;
+        break;
+
+      case 6: // Simple Fractions
+        const num = getRandomInt(-9, 9);
+        const den = getRandomInt(2, 9);
+        displayHtml = `<sup>${num}</sup>&frasl;<sub>${den}</sub>`;
+        isRational = true;
+        reason = `Fractions made of integers are rational.`;
+        break;
+
+      case 7: // Expressions with Pi
+        const piOptions = [
+          { html: `π`, reason: `π is a famous irrational number.` },
+          { html: `2π`, reason: `Multiplying π by a non-zero integer is irrational.` },
+          { html: `<sup>π</sup>&frasl;<sub>2</sub>`, reason: `Dividing π by a number results in an irrational number.` },
+          { html: `3 + π`, reason: `Adding a rational number to π is irrational.` }
+        ];
+        const selectedPi = piOptions[getRandomInt(0, piOptions.length - 1)];
+        displayHtml = selectedPi.html;
+        isRational = false;
+        reason = selectedPi.reason;
+        break;
+    }
+
+    currentProblem = {
+      html: displayHtml,
+      isRational: isRational,
+      type: isRational ? "Rational" : "Irrational",
+      reason: reason
+    };
+
+    document.getElementById('problem').innerHTML = currentProblem.html;
+    
+    // Reset buttons
+    const btnRational = document.getElementById('btnRational');
+    const btnIrrational = document.getElementById('btnIrrational');
+    
+    btnRational.className = 'option-btn';
+    btnIrrational.className = 'option-btn';
+    btnRational.style.pointerEvents = 'auto';
+    btnIrrational.style.pointerEvents = 'auto';
+
+    hasAttemptedCurrentProblem = false;
+  }
+
+  function handleSelection(selectedType, btnElement) {
+    const feedback = document.getElementById('feedback');
+    const btnRational = document.getElementById('btnRational');
+    const btnIrrational = document.getElementById('btnIrrational');
+
+    // Disable interaction during feedback interval
+    btnRational.style.pointerEvents = 'none';
+    btnIrrational.style.pointerEvents = 'none';
+
+    if (selectedType === currentProblem.type) {
+      feedback.innerHTML = `Correct! ${currentProblem.reason}`;
+      feedback.className = "feedback correct";
+      btnElement.classList.add('btn-correct');
+      
+      if (!hasAttemptedCurrentProblem) {
+        total++;
+        correct++;
+        streak++;
+      } else {
+        streak++;
+      }
+      
+      updateStats();
+      setTimeout(() => {
+        feedback.innerHTML = "";
+        generateProblem();
+      }, 1400);
+    } else {
+      feedback.innerHTML = `Try again! (${currentProblem.type}: ${currentProblem.reason})`;
+      feedback.className = "feedback incorrect";
+      btnElement.classList.add('btn-incorrect');
+      
+      if (!hasAttemptedCurrentProblem) {
+        total++;
+        incorrect++;
+        hasAttemptedCurrentProblem = true;
+      }
+      
+      streak = 0;
+      updateStats();
+
+      // Re-enable remaining valid button after incorrect tap
+      setTimeout(() => {
+        const otherBtn = btnElement === btnRational ? btnIrrational : btnRational;
+        otherBtn.style.pointerEvents = 'auto';
+      }, 800);
+    }
+  }
+
+  function updateStats() {
+    document.getElementById('streakVal').textContent = streak;
+    document.getElementById('totalVal').textContent = total;
+    document.getElementById('correctVal').textContent = correct;
+    document.getElementById('incorrectVal').textContent = incorrect;
+  }
+
+  document.getElementById('btnRational').addEventListener('click', function() {
+    handleSelection("Rational", this);
+  });
+
+  document.getElementById('btnIrrational').addEventListener('click', function() {
+    handleSelection("Irrational", this);
+  });
+
+  generateProblem();
+</script>
+
+</body>
+</html>
