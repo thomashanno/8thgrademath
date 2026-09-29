@@ -30,7 +30,7 @@
       font-weight: bold;
       margin: 15px 0 10px 0;
       color: #333;
-      min-height: 70px;
+      min-height: 85px;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -40,6 +40,42 @@
       margin: 0 0 15px 0;
       font-size: 14px;
       color: #666;
+    }
+
+    /* SVG Radical Layout */
+    .sqrt-container {
+      display: inline-flex;
+      align-items: center;
+      vertical-align: middle;
+      position: relative;
+    }
+    .sqrt-svg {
+      height: 1.15em;
+      width: 0.6em;
+      flex-shrink: 0;
+    }
+    .radicand {
+      border-top: 3px solid #333; /* Vinculum perfectly aligned with SVG tip */
+      padding: 2px 3px 0 2px;
+      margin-left: -1px; /* Blends SVG hook directly into vinculum */
+      line-height: 1;
+    }
+
+    /* Fraction Layout with Vinculum */
+    .fraction {
+      display: inline-flex;
+      flex-direction: column;
+      vertical-align: middle;
+      text-align: center;
+      padding: 0 4px;
+      font-size: 0.9em;
+    }
+    .fraction .numerator {
+      padding: 0 2px;
+    }
+    .fraction .denominator {
+      border-top: 2px solid #333;
+      padding: 2px 2px 0 2px;
     }
 
     /* Repeating decimal overline formatting */
@@ -148,7 +184,7 @@
   <h2>Rational vs. Irrational</h2>
   <p class="instruction">Is this number rational or irrational?</p>
 
-  <div class="problem" id="problem">√15</div>
+  <div class="problem" id="problem"></div>
   
   <div class="options-grid" id="optionsGrid">
     <button type="button" class="option-btn" id="btnRational">Rational</button>
@@ -197,8 +233,22 @@
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
+  function makeFractionHtml(num, den) {
+    return `<span class="fraction"><span class="numerator">${num}</span><span class="denominator">${den}</span></span>`;
+  }
+
+  function makeSqrtHtml(radicandContent) {
+    return `
+      <span class="sqrt-container">
+        <svg class="sqrt-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+          <path d="M 10 65 L 35 90 L 98 0" fill="none" stroke="#333" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="radicand">${radicandContent}</span>
+      </span>
+    `;
+  }
+
   function generateProblem() {
-    // Problem Generators array representing varied math representations
     const categoryChoice = getRandomInt(1, 7);
     let displayHtml = "";
     let isRational = true;
@@ -215,7 +265,7 @@
       case 2: // Square Roots of Perfect Squares
         const root = getRandomInt(1, 12);
         const sq = root * root;
-        displayHtml = `√${sq}`;
+        displayHtml = makeSqrtHtml(sq);
         isRational = true;
         reason = `√${sq} equals ${root}, which is a whole number.`;
         break;
@@ -226,7 +276,7 @@
           nonSq = getRandomInt(2, 99);
         } while (perfectSquares.includes(nonSq));
         
-        displayHtml = `√${nonSq}`;
+        displayHtml = makeSqrtHtml(nonSq);
         isRational = false;
         reason = `√${nonSq} is not a whole number, so its decimal never ends or repeats.`;
         break;
@@ -253,9 +303,12 @@
         break;
 
       case 6: // Simple Fractions
-        const num = getRandomInt(-9, 9);
+        let num;
+        do {
+          num = getRandomInt(-9, 9);
+        } while (num === 0);
         const den = getRandomInt(2, 9);
-        displayHtml = `<sup>${num}</sup>&frasl;<sub>${den}</sub>`;
+        displayHtml = makeFractionHtml(num, den);
         isRational = true;
         reason = `Fractions made of integers are rational.`;
         break;
@@ -264,7 +317,7 @@
         const piOptions = [
           { html: `π`, reason: `π is a famous irrational number.` },
           { html: `2π`, reason: `Multiplying π by a non-zero integer is irrational.` },
-          { html: `<sup>π</sup>&frasl;<sub>2</sub>`, reason: `Dividing π by a number results in an irrational number.` },
+          { html: makeFractionHtml('π', '2'), reason: `Dividing π by a number results in an irrational number.` },
           { html: `3 + π`, reason: `Adding a rational number to π is irrational.` }
         ];
         const selectedPi = piOptions[getRandomInt(0, piOptions.length - 1)];
@@ -300,7 +353,6 @@
     const btnRational = document.getElementById('btnRational');
     const btnIrrational = document.getElementById('btnIrrational');
 
-    // Disable interaction during feedback interval
     btnRational.style.pointerEvents = 'none';
     btnIrrational.style.pointerEvents = 'none';
 
@@ -336,7 +388,6 @@
       streak = 0;
       updateStats();
 
-      // Re-enable remaining valid button after incorrect tap
       setTimeout(() => {
         const otherBtn = btnElement === btnRational ? btnIrrational : btnRational;
         otherBtn.style.pointerEvents = 'auto';
