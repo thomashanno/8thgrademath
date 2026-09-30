@@ -26,18 +26,39 @@
       width: 100%;
     }
     .problem {
-      font-size: 36px;
+      font-size: 38px;
       font-weight: bold;
       margin: 15px 0 10px 0;
       color: #333;
-      min-height: 70px;
-      line-height: 70px;
+      min-height: 75px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
 
     .instruction {
       margin: 0 0 15px 0;
       font-size: 14px;
       color: #666;
+    }
+
+    /* SVG Radical Layout for Perfect Alignment */
+    .sqrt-container {
+      display: inline-flex;
+      align-items: center;
+      vertical-align: middle;
+      position: relative;
+    }
+    .sqrt-svg {
+      height: 1.15em;
+      width: 0.6em;
+      flex-shrink: 0;
+    }
+    .radicand {
+      border-top: 3px solid #333; /* Vinculum covering the radicand */
+      padding: 2px 3px 0 2px;
+      margin-left: -1px; /* Blends SVG hook directly into vinculum */
+      line-height: 1;
     }
 
     input[type="text"] {
@@ -176,7 +197,7 @@
   <h2>Evaluating Square Roots</h2>
   <p class="instruction">Evaluate the square root (√1 through √400)</p>
 
-  <div class="problem" id="problem">√144</div>
+  <div class="problem" id="problem"></div>
   
   <form id="answerForm">
     <input type="text" id="userInput" placeholder="e.g. 12" autocomplete="off" required="">
@@ -256,12 +277,23 @@
     userInput.classList.remove('input-correct', 'input-incorrect');
   }
 
+  function makeSqrtHtml(radicandContent) {
+    return `
+      <span class="sqrt-container">
+        <svg class="sqrt-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+          <path d="M 10 65 L 35 90 L 98 0" fill="none" stroke="#333" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="radicand">${radicandContent}</span>
+      </span>
+    `;
+  }
+
   function generateProblem() {
     // Generate a random root from 1 to 20 (perfect squares 1 to 400)
     const root = Math.floor(Math.random() * 20) + 1; 
     const perfectSquare = root * root;
     
-    document.getElementById('problem').innerHTML = `√${perfectSquare}`;
+    document.getElementById('problem').innerHTML = makeSqrtHtml(perfectSquare);
     currentAnswer = root.toString();
 
     hasAttemptedCurrentProblem = false;
