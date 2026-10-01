@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Distance on a Coordinate Plane Practice</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f7f6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 15px;
+      box-sizing: border-box;
+    }
+    .card {
+      background: white;
+      padding: 25px 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      text-align: center;
+      max-width: 420px;
+      width: 100%;
+    }
+
+    .instruction {
+      margin: 0 0 10px 0;
+      font-size: 14px;
+      color: #666;
+    }
+
+    /* Dynamic Grid Canvas Container */
+    .canvas-container {
+      margin: 10px 0 8px 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    canvas {
+      background-color: #ffffff;
+      border-radius: 8px;
+      box-shadow: inset 0 0 0 1px #e0e0e0;
+    }
+
+    /* Toggle Legs Button */
+    .toggle-legs-btn {
+      margin-top: 8px;
+      padding: 6px 14px;
+      font-size: 13px;
+      font-weight: bold;
+      color: #007bff;
+      background-color: #eef6ff;
+      border: 1px solid #007bff;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .toggle-legs-btn:hover {
+      background-color: #007bff;
+      color: white;
+    }
+
+    input[type="text"] {
+      font-size: 22px;
+      padding: 10px;
+      width: 100%;
+      text-align: center;
+      border: 2px solid #ccc;
+      border-radius: 6px;
+      outline: none;
+      box-sizing: border-box;
+      background-color: #fff;
+      transition: border-color 0.2s, background-color 0.2s;
+    }
+    input[type="text"]:focus {
+      border-color: #007bff;
+    }
+
+    /* Input feedback states */
+    input[type="text"].input-correct {
+      border-color: #28a745 !important;
+      background-color: #e8f8ec !important;
+      color: #155724;
+    }
+    input[type="text"].input-incorrect {
+      border-color: #dc3545 !important;
+      background-color: #fdf2f2 !important;
+      color: #721c24;
+    }
+
+    .submit-btn {
+      margin-top: 12px;
+      width: 100%;
+      padding: 12px;
+      font-size: 18px;
+      font-weight: bold;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .submit-btn:hover {
+      background-color: #0056b3;
+    }
+
+    /* Keypad Layout */
+    .keypad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .key-btn {
+      padding: 12px 0;
+      font-size: 22px;
+      font-weight: bold;
+      background-color: #e9ecef;
+      color: #333;
+      border: 1px solid #ced4da;
+      border-radius: 6px;
+      cursor: pointer;
+      user-select: none;
+      touch-action: manipulation;
+    }
+    .key-btn:active {
+      background-color: #adb5bd;
+    }
+    .key-btn.action {
+      background-color: #6c757d;
+      color: white;
+      border-color: #5a6268;
+    }
+    .key-btn.action:active {
+      background-color: #495057;
+    }
+
+    .feedback {
+      margin-top: 15px;
+      font-size: 15px;
+      font-weight: bold;
+      min-height: 45px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      line-height: 1.4;
+      padding: 0 5px;
+    }
+    .correct { color: #28a745; }
+    .incorrect { color: #dc3545; }
+    
+    .stats-container {
+      margin-top: 20px;
+      padding-top: 15px;
+      border-top: 1px solid #eee;
+      display: flex;
+      justify-content: space-around;
+      font-size: 14px;
+      color: #555;
+    }
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .stat-value {
+      font-weight: bold;
+      font-size: 16px;
+      color: #333;
+    }
+    .nav-links {
+      margin-top: 18px;
+      padding-top: 12px;
+      border-top: 1px dashed #eee;
+      font-size: 14px;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      align-items: center;
+    }
+    .nav-links a {
+      color: #007bff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .nav-links a:hover {
+      text-decoration: underline;
+    }
+    .nav-links span {
+      color: #ccc;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h2>Distance on Coordinate Plane</h2>
+  <p class="instruction">Find the distance between the points. Round to the nearest tenth if necessary.</p>
+
+  <div class="canvas-container">
+    <canvas id="gridCanvas" width="280" height="280"></canvas>
+    <button type="button" class="toggle-legs-btn" id="toggleLegsBtn">📐 Show Legs</button>
+  </div>
+  
+  <form id="answerForm">
+    <input type="text" id="userInput" placeholder="Type distance..." autocomplete="off">
+    
+    <div class="keypad">
+      <!-- Row 1 -->
+      <button type="button" class="key-btn" data-val="1">1</button>
+      <button type="button" class="key-btn" data-val="2">2</button>
+      <button type="button" class="key-btn" data-val="3">3</button>
+
+      <!-- Row 2 -->
+      <button type="button" class="key-btn" data-val="4">4</button>
+      <button type="button" class="key-btn" data-val="5">5</button>
+      <button type="button" class="key-btn" data-val="6">6</button>
+
+      <!-- Row 3 -->
+      <button type="button" class="key-btn" data-val="7">7</button>
+      <button type="button" class="key-btn" data-val="8">8</button>
+      <button type="button" class="key-btn" data-val="9">9</button>
+
+      <!-- Row 4 -->
+      <button type="button" class="key-btn" data-val=".">.</button>
+      <button type="button" class="key-btn" data-val="0">0</button>
+      <button type="button" class="key-btn action" id="backspaceBtn">⌫</button>
+    </div>
+
+    <button type="submit" id="submitBtn" class="submit-btn">Submit Answer</button>
+  </form>
+
+  <div class="feedback" id="feedback"></div>
+
+  <div class="stats-container">
+    <div class="stat-item">
+      <span>Streak</span>
+      <span class="stat-value" id="streakVal">0</span>
+    </div>
+    <div class="stat-item">
+      <span>Total</span>
+      <span class="stat-value" id="totalVal">0</span>
+    </div>
+    <div class="stat-item">
+      <span>Correct</span>
+      <span class="stat-value" id="correctVal" style="color: #28a745;">0</span>
+    </div>
+    <div class="stat-item">
+      <span>Incorrect</span>
+      <span class="stat-value" id="incorrectVal" style="color: #dc3545;">0</span>
+    </div>
+  </div>
+
+  <div class="nav-links">
+    <a href="javascript:history.back()">← Go Back</a>
+    <span>|</span>
+    <a href="https://thomashanno.github.io/8thgrademath/index.html">🏠 Home</a>
+  </div>
+</div>
+
+<script>
+  let currentProblem = null;
+  let streak = 0;
+  let total = 0;
+  let correct = 0;
+  let incorrect = 0;
+  let attemptsOnCurrentProblem = 0;
+  let showLegs = false;
+
+  const userInput = document.getElementById('userInput');
+  const canvas = document.getElementById('gridCanvas');
+  const ctx = canvas.getContext('2d');
+  const toggleLegsBtn = document.getElementById('toggleLegsBtn');
+  const isMobile = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+
+  if (isMobile) {
+    userInput.setAttribute('readonly', 'true');
+    userInput.setAttribute('inputmode', 'none');
+  }
+
+  function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  function resetInputStyle() {
+    userInput.classList.remove('input-correct', 'input-incorrect');
+  }
+
+  // Draw 10x10 Coordinate Plane Grid (-5 to 5 on both axes)
+  function drawCoordinatePlane(p1, p2) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const gridSize = 10; // -5 to +5 range
+    const margin = 20;
+    const width = canvas.width - 2 * margin;
+    const height = canvas.height - 2 * margin;
+    const step = width / gridSize;
+
+    // Map grid coordinates (x, y) to Canvas (px, py)
+    function toPx(x, y) {
+      return {
+        px: margin + (x + 5) * step,
+        py: margin + (5 - y) * step
+      };
+    }
+
+    // Draw Light Grid Lines
+    ctx.strokeStyle = '#e9ecef';
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= gridSize; i++) {
+      // Vertical grid line
+      ctx.beginPath();
+      ctx.moveTo(margin + i * step, margin);
+      ctx.lineTo(margin + i * step, margin + height);
+      ctx.stroke();
+
+      // Horizontal grid line
+      ctx.beginPath();
+      ctx.moveTo(margin, margin + i * step);
+      ctx.lineTo(margin + width, margin + i * step);
+      ctx.stroke();
+    }
+
+    // Draw Main X and Y Axes
+    const origin = toPx(0, 0);
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth = 2;
+
+    // X Axis
+    ctx.beginPath();
+    ctx.moveTo(margin, origin.py);
+    ctx.lineTo(margin + width, origin.py);
+    ctx.stroke();
+
+    // Y Axis
+    ctx.beginPath();
+    ctx.moveTo(origin.px, margin);
+    ctx.lineTo(origin.px, margin + height);
+    ctx.stroke();
+
+    const p1Px = toPx(p1.x, p1.y);
+    const p2Px = toPx(p2.x, p2.y);
+    const cornerPx = toPx(p2.x, p1.y);
+
+    // Draw Dotted Right Triangle Legs ONLY if toggled on
+    if (showLegs) {
+      ctx.setLineDash([4, 4]);
+      ctx.strokeStyle = '#007bff';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(p1Px.px, p1Px.py);
+      ctx.lineTo(cornerPx.px, cornerPx.py);
+      ctx.lineTo(p2Px.px, p2Px.py);
+      ctx.stroke();
+    }
+
+    // Solid Red Line Connecting Points
+    ctx.setLineDash([]);
+    ctx.strokeStyle = '#dc3545';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(p1Px.px, p1Px.py);
+    ctx.lineTo(p2Px.px, p2Px.py);
+    ctx.stroke();
+
+    // Draw Points A and B
+    [p1, p2].forEach((p) => {
+      const pos = toPx(p.x, p.y);
+      ctx.beginPath();
+      ctx.arc(pos.px, pos.py, 5, 0, 2 * Math.PI);
+      ctx.fillStyle = '#007bff';
+      ctx.fill();
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      // Label Coordinates
+      ctx.font = 'bold 12px Arial';
+      ctx.fillStyle = '#222';
+      const label = `(${p.x}, ${p.y})`;
+      
+      let offsetX = (p.x >= 0) ? -35 : 10;
+      let offsetY = (p.y >= 0) ? -10 : 18;
+      ctx.fillText(label, pos.px + offsetX, pos.py + offsetY);
+    });
+  }
+
+  function generateProblem() {
+    let p1, p2, dx, dy, dist;
+
+    // Ensure non-zero horizontal and vertical distance
+    do {
+      p1 = { x: getRandomInt(-4, 4), y: getRandomInt(-4, 4) };
+      p2 = { x: getRandomInt(-4, 4), y: getRandomInt(-4, 4) };
+      dx = Math.abs(p1.x - p2.x);
+      dy = Math.abs(p1.y - p2.y);
+    } while (dx === 0 || dy === 0);
+
+    dist = Math.sqrt(dx * dx + dy * dy);
+    const expectedVal = Math.round(dist * 10) / 10;
+
+    const hintText = `💡 <strong>Hint:</strong> Leg 1 = ${dx}, Leg 2 = ${dy}. Set up: <strong>${dx}² + ${dy}² = c²</strong>`;
+    const explanation = `Correct! <strong>${dx}² + ${dy}² = ${expectedVal}²</strong>`;
+
+    currentProblem = {
+      p1: p1,
+      p2: p2,
+      dx: dx,
+      dy: dy,
+      expectedAnswer: expectedVal.toString(),
+      hintText: hintText,
+      explanation: explanation
+    };
+
+    // Reset legs visibility for new problem
+    showLegs = false;
+    toggleLegsBtn.textContent = '📐 Show Legs';
+
+    drawCoordinatePlane(p1, p2);
+    attemptsOnCurrentProblem = 0;
+    userInput.value = '';
+    resetInputStyle();
+
+    if (!isMobile) {
+      userInput.focus();
+    }
+  }
+
+  // Toggle Legs Button Handler
+  toggleLegsBtn.addEventListener('click', function() {
+    showLegs = !showLegs;
+    toggleLegsBtn.textContent = showLegs ? '🙈 Hide Legs' : '📐 Show Legs';
+    if (currentProblem) {
+      drawCoordinatePlane(currentProblem.p1, currentProblem.p2);
+    }
+  });
+
+  function evaluateAnswer(userAnswer) {
+    const feedback = document.getElementById('feedback');
+    const cleanUser = userAnswer.trim();
+    
+    const numUser = parseFloat(cleanUser);
+    const numExpected = parseFloat(currentProblem.expectedAnswer);
+    const isCorrect = !isNaN(numUser) && Math.abs(numUser - numExpected) < 0.01;
+
+    attemptsOnCurrentProblem++;
+
+    if (isCorrect) {
+      feedback.innerHTML = currentProblem.explanation;
+      feedback.className = "feedback correct";
+      
+      userInput.classList.remove('input-incorrect');
+      userInput.classList.add('input-correct');
+
+      if (attemptsOnCurrentProblem === 1) {
+        total++;
+        correct++;
+        streak++;
+      } else {
+        streak++;
+      }
+      
+      updateStats();
+      setTimeout(() => {
+        feedback.innerHTML = "";
+        generateProblem();
+      }, 1600);
+    } else {
+      userInput.classList.remove('input-correct');
+      userInput.classList.add('input-incorrect');
+
+      if (attemptsOnCurrentProblem === 1) {
+        // First wrong attempt: Show substituted equation hint
+        feedback.innerHTML = currentProblem.hintText;
+        feedback.className = "feedback incorrect";
+        
+        total++;
+        incorrect++;
+        streak = 0;
+        updateStats();
+      } else {
+        // Second (or subsequent) wrong attempt: Reveal answer
+        feedback.innerHTML = `Incorrect. Correct distance is <strong>${currentProblem.expectedAnswer}</strong>`;
+        feedback.className = "feedback incorrect";
+        
+        streak = 0;
+        updateStats();
+      }
+    }
+  }
+
+  function updateStats() {
+    document.getElementById('streakVal').textContent = streak;
+    document.getElementById('totalVal').textContent = total;
+    document.getElementById('correctVal').textContent = correct;
+    document.getElementById('incorrectVal').textContent = incorrect;
+  }
+
+  // Keypad Event Handlers
+  document.querySelectorAll('.key-btn[data-val]').forEach(button => {
+    button.addEventListener('click', function() {
+      resetInputStyle();
+      const val = this.getAttribute('data-val');
+      if (val === '.' && userInput.value.includes('.')) return;
+      
+      userInput.value += val;
+      if (!isMobile) userInput.focus();
+    });
+  });
+
+  document.getElementById('backspaceBtn').addEventListener('click', function() {
+    resetInputStyle();
+    userInput.value = userInput.value.slice(0, -1);
+    if (!isMobile) userInput.focus();
+  });
+
+  userInput.addEventListener('input', resetInputStyle);
+
+  // Submit Logic
+  document.getElementById('answerForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    if (userInput.value.trim() === '') return;
+    evaluateAnswer(userInput.value);
+  });
+
+  generateProblem();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Identifying Right Triangles Practice</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f7f6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 15px;
+      box-sizing: border-box;
+    }
+    .card {
+      background: white;
+      padding: 25px 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      text-align: center;
+      max-width: 420px;
+      width: 100%;
+    }
+    .problem {
+      font-size: 32px;
+      font-weight: bold;
+      margin: 15px 0 10px 0;
+      color: #333;
+      min-height: 70px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      letter-spacing: 1px;
+    }
+
+    .instruction {
+      margin: 0 0 15px 0;
+      font-size: 14px;
+      color: #666;
+    }
+
+    /* Decision Buttons Layout */
+    .button-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .choice-btn {
+      flex: 1;
+      padding: 16px 10px;
+      font-size: 16px;
+      font-weight: bold;
+      border: 1px solid #ced4da;
+      border-radius: 8px;
+      background-color: #e9ecef;
+      color: #333;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+      touch-action: manipulation;
+    }
+
+    .choice-btn:hover {
+      background-color: #dee2e6;
+      border-color: #adb5bd;
+    }
+
+    .choice-btn:active {
+      background-color: #ced4da;
+      transform: scale(0.98);
+    }
+
+    .feedback {
+      margin-top: 18px;
+      font-size: 15px;
+      font-weight: bold;
+      min-height: 55px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      line-height: 1.4;
+      padding: 0 5px;
+    }
+    .correct { color: #28a745; }
+    .incorrect { color: #dc3545; }
+    
+    .stats-container {
+      margin-top: 20px;
+      padding-top: 15px;
+      border-top: 1px solid #eee;
+      display: flex;
+      justify-content: space-around;
+      font-size: 14px;
+      color: #555;
+    }
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .stat-value {
+      font-weight: bold;
+      font-size: 16px;
+      color: #333;
+    }
+    .nav-links {
+      margin-top: 18px;
+      padding-top: 12px;
+      border-top: 1px dashed #eee;
+      font-size: 14px;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      align-items: center;
+    }
+    .nav-links a {
+      color: #007bff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .nav-links a:hover {
+      text-decoration: underline;
+    }
+    .nav-links span {
+      color: #ccc;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h2>Identifying Right Triangles</h2>
+  <p class="instruction">Do these three side lengths form a right triangle?</p>
+
+  <div class="problem" id="problem">...</div>
+  
+  <div class="button-group">
+    <button type="button" class="choice-btn" id="rightBtn">✅ Right Triangle</button>
+    <button type="button" class="choice-btn" id="notRightBtn">❌ Not a Right Triangle</button>
+  </div>
+
+  <div class="feedback" id="feedback"></div>
+
+  <div class="stats-container">
+    <div class="stat-item">
+      <span>Streak</span>
+      <span class="stat-value" id="streakVal">0</span>
+    </div>
+    <div class="stat-item">
+      <span>Total</span>
+      <span class="stat-value" id="totalVal">0</span>
+    </div>
+    <div class="stat-item">
+      <span>Correct</span>
+      <span class="stat-value" id="correctVal" style="color: #28a745;">0</span>
+    </div>
+    <div class="stat-item">
+      <span>Incorrect</span>
+      <span class="stat-value" id="incorrectVal" style="color: #dc3545;">0</span>
+    </div>
+  </div>
+
+  <div class="nav-links">
+    <a href="javascript:history.back()">← Go Back</a>
+    <span>|</span>
+    <a href="https://thomashanno.github.io/8thgrademath/index.html">🏠 Home</a>
+  </div>
+</div>
+
+<script>
+  let currentProblem = null;
+  let streak = 0;
+  let total = 0;
+  let correct = 0;
+  let incorrect = 0;
+  let hasAttemptedCurrentProblem = false;
+
+  // Common Pythagorean triples (and multiples)
+  const pythagoreanTriples = [
+    [3, 4, 5],
+    [5, 12, 13],
+    [6, 8, 10],
+    [7, 24, 25],
+    [8, 15, 17],
+    [9, 12, 15],
+    [9, 40, 41],
+    [10, 24, 26],
+    [12, 16, 20],
+    [15, 20, 25],
+    [12, 35, 37],
+    [20, 21, 29]
+  ];
+
+  function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  // Shuffle array utility to randomize side order display
+  function shuffleArray(array) {
+    const arr = [...array];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  function generateProblem() {
+    const isRightTriangle = Math.random() < 0.5; // 50/50 chance
+    let sides = [];
+
+    if (isRightTriangle) {
+      // Pick a valid Pythagorean triple
+      const triple = pythagoreanTriples[getRandomInt(0, pythagoreanTriples.length - 1)];
+      sides = [...triple];
+    } else {
+      // Generate non-right triangle sides that still satisfy Triangle Inequality (a + b > c)
+      let a, b, c;
+      do {
+        a = getRandomInt(3, 20);
+        b = getRandomInt(3, 20);
+        c = getRandomInt(Math.abs(a - b) + 2, a + b - 2);
+      } while (a * a + b * b === c * c); // ensure it is NOT a right triangle
+
+      sides = [a, b, c];
+    }
+
+    // Display sides in randomized order (not always sorted)
+    const displayedSides = shuffleArray(sides);
+
+    // Sort to calculate a, b, c for checking/explanation
+    const sorted = [...sides].sort((x, y) => x - y);
+    const a = sorted[0];
+    const b = sorted[1];
+    const c = sorted[2];
+
+    const a2 = a * a;
+    const b2 = b * b;
+    const c2 = c * c;
+    const sumAB = a2 + b2;
+
+    let explanation = "";
+    if (isRightTriangle) {
+      explanation = `Correct! ${a}² + ${b}² = ${c}² (${a2} + ${b2} = ${c2}).`;
+    } else {
+      explanation = `Correct! ${a}² + ${b}² ≠ ${c}² (${a2} + ${b2} = ${sumAB}, but ${c}² = ${c2}).`;
+    }
+
+    currentProblem = {
+      sides: displayedSides,
+      isRightTriangle: isRightTriangle,
+      a: a,
+      b: b,
+      c: c,
+      a2: a2,
+      b2: b2,
+      c2: c2,
+      sumAB: sumAB,
+      explanation: explanation
+    };
+
+    document.getElementById('problem').textContent = displayedSides.join(', ');
+    hasAttemptedCurrentProblem = false;
+  }
+
+  function handleUserChoice(userChoiceIsRight) {
+    const feedback = document.getElementById('feedback');
+    const isCorrect = (userChoiceIsRight === currentProblem.isRightTriangle);
+
+    if (isCorrect) {
+      feedback.innerHTML = currentProblem.explanation;
+      feedback.className = "feedback correct";
+
+      if (!hasAttemptedCurrentProblem) {
+        total++;
+        correct++;
+        streak++;
+      } else {
+        streak++;
+      }
+      
+      updateStats();
+      setTimeout(() => {
+        feedback.innerHTML = "";
+        generateProblem();
+      }, 1600);
+    } else {
+      let failMessage = "";
+      const { a, b, c, a2, b2, c2, sumAB, isRightTriangle } = currentProblem;
+
+      if (isRightTriangle) {
+        failMessage = `Incorrect. These DO form a right triangle because ${a}² + ${b}² = ${c}² (${a2} + ${b2} = ${c2}).`;
+      } else {
+        failMessage = `Incorrect. These DO NOT form a right triangle because ${a}² + ${b}² = ${sumAB}, which does not equal ${c}² (${c2}).`;
+      }
+
+      feedback.innerHTML = failMessage;
+      feedback.className = "feedback incorrect";
+
+      if (!hasAttemptedCurrentProblem) {
+        total++;
+        incorrect++;
+        hasAttemptedCurrentProblem = true;
+      }
+
+      streak = 0;
+      updateStats();
+    }
+  }
+
+  function updateStats() {
+    document.getElementById('streakVal').textContent = streak;
+    document.getElementById('totalVal').textContent = total;
+    document.getElementById('correctVal').textContent = correct;
+    document.getElementById('incorrectVal').textContent = incorrect;
+  }
+
+  // Event Listeners for Choice Buttons
+  document.getElementById('rightBtn').addEventListener('click', () => handleUserChoice(true));
+  document.getElementById('notRightBtn').addEventListener('click', () => handleUserChoice(false));
+
+  generateProblem();
+</script>
+
+</body>
+</html>
