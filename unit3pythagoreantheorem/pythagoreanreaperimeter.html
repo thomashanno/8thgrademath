@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Area & Perimeter Practice</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f7f6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 15px;
+      box-sizing: border-box;
+    }
+    .card {
+      background: white;
+      padding: 25px 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      text-align: center;
+      max-width: 420px;
+      width: 100%;
+    }
+
+    .instruction {
+      margin: 0 0 10px 0;
+      font-size: 15px;
+      color: #444;
+      line-height: 1.4;
+    }
+
+    /* Canvas Container */
+    .canvas-container {
+      margin: 10px 0 15px 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    canvas {
+      background-color: #ffffff;
+      border-radius: 8px;
+    }
+
+    input[type="text"] {
+      font-size: 22px;
+      padding: 10px;
+      width: 100%;
+      text-align: center;
+      border: 2px solid #ccc;
+      border-radius: 6px;
+      outline: none;
+      box-sizing: border-box;
+      background-color: #fff;
+      transition: border-color 0.2s, background-color 0.2s;
+    }
+    input[type="text"]:focus {
+      border-color: #007bff;
+    }
+
+    /* Input feedback states */
+    input[type="text"].input-correct {
+      border-color: #28a745 !important;
+      background-color: #e8f8ec !important;
+      color: #155724;
+    }
+    input[type="text"].input-incorrect {
+      border-color: #dc3545 !important;
+      background-color: #fdf2f2 !important;
+      color: #721c24;
+    }
+
+    .submit-btn {
+      margin-top: 12px;
+      width: 100%;
+      padding: 12px;
+      font-size: 18px;
+      font-weight: bold;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .submit-btn:hover {
+      background-color: #0056b3;
+    }
+
+    /* Keypad Layout */
+    .keypad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .key-btn {
+      padding: 12px 0;
+      font-size: 22px;
+      font-weight: bold;
+      background-color: #e9ecef;
+      color: #333;
+      border: 1px solid #ced4da;
+      border-radius: 6px;
+      cursor: pointer;
+      user-select: none;
+      touch-action: manipulation;
+    }
+    .key-btn:active {
+      background-color: #adb5bd;
+    }
+    .key-btn.action {
+      background-color: #6c757d;
+      color: white;
+      border-color: #5a6268;
+    }
+    .key-btn.action:active {
+      background-color: #495057;
+    }
+
+    .feedback {
+      margin-top: 15px;
+      font-size: 15px;
+      font-weight: bold;
+      min-height: 45px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      line-height: 1.4;
+      padding: 0 5px;
+    }
+    .correct { color: #28a745; }
+    .incorrect { color: #dc3545; }
+    
+    .stats-container {
+      margin-top: 20px;
+      padding-top: 15px;
+      border-top: 1px solid #eee;
+      display: flex;
+      justify-content: space-around;
+      font-size: 14px;
+      color: #555;
+    }
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .stat-value {
+      font-weight: bold;
+      font-size: 16px;
+      color: #333;
+    }
+    .nav-links {
+      margin-top: 18px;
+      padding-top: 12px;
+      border-top: 1px dashed #eee;
+      font-size: 14px;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      align-items: center;
+    }
+    .nav-links a {
+      color: #007bff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .nav-links a:hover {
+      text-decoration: underline;
+    }
+    .nav-links span {
+      color: #ccc;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h2>Area & Perimeter Practice</h2>
+  <p class="instruction" id="instructionText">Find the requested measure.</p>
+
+  <div class="canvas-container">
+    <canvas id="shapeCanvas" width="280" height="180"></canvas>
+  </div>
+  
+  <form id="answerForm">
+    <input type="text" id="userInput" placeholder="Type answer..." autocomplete="off">
+    
+    <div class="keypad">
+      <!-- Row 1 -->
+      <button type="button" class="key-btn" data-val="1">1</button>
+      <button type="button" class="key-btn" data-val="2">2</button>
+      <button type="button" class="key-btn" data-val="3">3</button>
+
+      <!-- Row 2 -->
+      <button type="button" class="key-btn" data-val="4">4</button>
+      <button type="button" class="key-btn" data-val="5">5</button>
+      <button type="button" class="key-btn" data-val="6">6</button>
+
+      <!-- Row 3 -->
+      <button type="button" class="key-btn" data-val="7">7</button>
+      <button type="button" class="key-btn" data-val="8">8</button>
+      <button type="button" class="key-btn" data-val="9">9</button>
+
+      <!-- Row 4 -->
+      <button type="button" class="key-btn" data-val=".">.</button>
+      <button type="button" class="key-btn" data-val="0">0</button>
+      <button type="button" class="key-btn action" id="backspaceBtn">⌫</button>
+    </div>
+
+    <button type="submit" id="submitBtn" class="submit-btn">Submit Answer</button>
+  </form>
+
+  <div class="feedback" id="feedback"></div>
+
+  <div class="stats-container">
+    <div class="stat-item">
+      <span>Streak</span>
+      <span class="stat-value" id="streakVal">0</span>
+    </div>
+    <div class="stat-item">
+      <span>Total</span>
+      <span class="stat-value" id="totalVal">0</span>
+    </div>
+    <div class="stat-item">
+      <span>Correct</span>
+      <span class="stat-value" id="correctVal" style="color: #28a745;">0</span>
+    </div>
+    <div class="stat-item">
+      <span>Incorrect</span>
+      <span class="stat-value" id="incorrectVal" style="color: #dc3545;">0</span>
+    </div>
+  </div>
+
+  <div class="nav-links">
+    <a href="javascript:history.back()">← Go Back</a>
+    <span>|</span>
+    <a href="https://thomashanno.github.io/8thgrademath/index.html">🏠 Home</a>
+  </div>
+</div>
+
+<script>
+  let currentProblem = null;
+  let streak = 0;
+  let total = 0;
+  let correct = 0;
+  let incorrect = 0;
+  let attemptsOnCurrentProblem = 0;
+
+  const userInput = document.getElementById('userInput');
+  const canvas = document.getElementById('shapeCanvas');
+  const ctx = canvas.getContext('2d');
+  const instructionEl = document.getElementById('instructionText');
+  const isMobile = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+
+  if (isMobile) {
+    userInput.setAttribute('readonly', 'true');
+    userInput.setAttribute('inputmode', 'none');
+  }
+
+  function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  function resetInputStyle() {
+    userInput.classList.remove('input-correct', 'input-incorrect');
+  }
+
+  // Draw Right Triangle TO SCALE
+  function drawTriangle(a, b, cLabel) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const maxW = 180;
+    const maxH = 110;
+    const scale = Math.min(maxW / a, maxH / b);
+
+    const drawA = a * scale;
+    const drawB = b * scale;
+
+    const x0 = (canvas.width - drawA) / 2 + 10;
+    const y0 = (canvas.height + drawB) / 2 - 10;
+
+    const x1 = x0 + drawA;
+    const y1 = y0;
+    const x2 = x0;
+    const y2 = y0 - drawB;
+
+    // Right Angle Box
+    const boxSize = Math.min(12, Math.min(drawA, drawB) * 0.25);
+    ctx.beginPath();
+    ctx.moveTo(x0, y0 - boxSize);
+    ctx.lineTo(x0 + boxSize, y0 - boxSize);
+    ctx.lineTo(x0 + boxSize, y0);
+    ctx.strokeStyle = '#007bff';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Triangle Path
+    ctx.beginPath();
+    ctx.moveTo(x0, y0);
+    ctx.lineTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.closePath();
+
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+
+    ctx.font = 'bold 16px Arial';
+
+    // Base (Bottom)
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    ctx.fillStyle = '#111';
+    ctx.fillText(a.toString(), x0 + drawA / 2, y0 + 8);
+
+    // Height (Left)
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(b.toString(), x0 - 10, y0 - drawB / 2);
+
+    // Hypotenuse
+    if (cLabel) {
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      ctx.fillStyle = (cLabel === '?') ? '#d9534f' : '#111';
+      ctx.fillText(cLabel, x0 + drawA / 2 + 12, y0 - drawB / 2 - 4);
+    }
+  }
+
+  // Draw Right Trapezoid TO SCALE
+  function drawTrapezoid(b1Label, b2Label, hLabel, sLabel, isDashedH) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const numB1 = parseFloat(b1Label) || 12;
+    const numB2 = parseFloat(b2Label) || 6;
+    const numH = parseFloat(hLabel) || 8;
+
+    const maxW = 180;
+    const maxH = 110;
+    const scale = Math.min(maxW / numB1, maxH / numH);
+
+    const drawB1 = numB1 * scale;
+    const drawB2 = numB2 * scale;
+    const drawH = numH * scale;
+
+    const x0 = (canvas.width - drawB1) / 2 + 10;
+    const y0 = (canvas.height + drawH) / 2 - 10;
+
+    const x1 = x0 + drawB1;
+    const y1 = y0;
+    const x2 = x0 + drawB2;
+    const y2 = y0 - drawH;
+    const x3 = x0;
+    const y3 = y0 - drawH;
+
+    // Right Angle Boxes
+    const boxSize = Math.min(12, Math.min(drawB2, drawH) * 0.25);
+    ctx.strokeStyle = '#007bff';
+    ctx.lineWidth = 2;
+
+    // Bottom-left box
+    ctx.beginPath();
+    ctx.moveTo(x0, y0 - boxSize);
+    ctx.lineTo(x0 + boxSize, y0 - boxSize);
+    ctx.lineTo(x0 + boxSize, y0);
+    ctx.stroke();
+
+    // Top-left box
+    ctx.beginPath();
+    ctx.moveTo(x0, y3 + boxSize);
+    ctx.lineTo(x0 + boxSize, y3 + boxSize);
+    ctx.lineTo(x0 + boxSize, y3);
+    ctx.stroke();
+
+    // Outer Shape Path
+    ctx.beginPath();
+    ctx.moveTo(x0, y0);
+    ctx.lineTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.lineTo(x3, y3);
+    ctx.closePath();
+
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+
+    // Optional Dashed Height line inside if height is missing
+    if (isDashedH) {
+      ctx.setLineDash([4, 4]);
+      ctx.strokeStyle = '#007bff';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(x0, y0);
+      ctx.lineTo(x3, y3);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    ctx.font = 'bold 16px Arial';
+
+    // Bottom Base (b1)
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    ctx.fillStyle = (b1Label === '?') ? '#d9534f' : '#111';
+    ctx.fillText(b1Label, x0 + drawB1 / 2, y0 + 8);
+
+    // Top Base (b2)
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'bottom';
+    ctx.fillStyle = (b2Label === '?') ? '#d9534f' : '#111';
+    ctx.fillText(b2Label, x0 + drawB2 / 2, y3 - 6);
+
+    // Height (h)
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = (hLabel === '?') ? '#d9534f' : '#111';
+    ctx.fillText(hLabel, x0 - 10, y0 - drawH / 2);
+
+    // Slanted Side (s)
+    if (sLabel) {
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = (sLabel === '?') ? '#d9534f' : '#111';
+      ctx.fillText(sLabel, (x1 + x2) / 2 + 8, (y1 + y2) / 2);
+    }
+  }
+
+  function generateProblem() {
+    const targetType = getRandomInt(0, 1); // 0 = Area, 1 = Perimeter
+    const roundMode = getRandomInt(0, 1);  // 0 = Tenth, 1 = Hundredth
+
+    let rawVal = 0;
+    let hintText = "";
+    const pythPairs = [[3, 4, 5], [4, 3, 5], [5, 12, 13], [12, 5, 13], [6, 8, 10], [8, 6, 10], [8, 15, 17], [15, 8, 17]];
+
+    if (targetType === 0) {
+      // --- AREA QUESTIONS: ALWAYS RIGHT TRAPEZOID (SQUARE/RECTANGLE WITH SLANT) ---
+      // Requires Pythagorean Theorem to find missing height h or missing base b1
+      const variant = getRandomInt(0, 1); // 0 = missing height h, 1 = missing bottom base b1
+      const sel = pythPairs[getRandomInt(0, pythPairs.length - 1)];
+      const diff = sel[0];
+      const h = sel[1];
+      const s = sel[2];
+
+      const b2 = getRandomInt(4, 10);
+      const b1 = b2 + diff;
+
+      rawVal = 0.5 * (b1 + b2) * h;
+
+      if (variant === 0) {
+        // Missing height h: given b1, b2, s
+        drawTrapezoid(b1.toString(), b2.toString(), "?", s.toString(), true);
+        hintText = '💡 <strong>Hint:</strong> Use Pythagorean theorem to find height first: h² = ' + s + '² - (' + b1 + ' - ' + b2 + ')² → h = ' + h + '. Then Area = ½ × (' + b1 + ' + ' + b2 + ') × ' + h;
+      } else {
+        // Missing bottom base b1: given b2, h, s
+        drawTrapezoid("?", b2.toString(), h.toString(), s.toString(), false);
+        hintText = '💡 <strong>Hint:</strong> Use Pythagorean theorem to find the base extension: d² = ' + s + '² - ' + h + '² → d = ' + diff + '. Base b₁ = ' + b2 + ' + ' + diff + ' = ' + b1 + '. Then Area = ½ × (' + b1 + ' + ' + b2 + ') × ' + h;
+      }
+
+    } else {
+      // --- PERIMETER QUESTIONS: RIGHT TRIANGLE OR TRAPEZOID ---
+      const shapeType = getRandomInt(0, 1); // 0 = Triangle, 1 = Trapezoid
+
+      if (shapeType === 0) {
+        // Right Triangle Perimeter
+        const a = getRandomInt(3, 10);
+        const b = getRandomInt(3, 10);
+        const c = Math.sqrt(a * a + b * b);
+
+        rawVal = a + b + c;
+        drawTriangle(a, b, "?");
+        hintText = '💡 <strong>Hint:</strong> Find the missing hypotenuse first using c² = ' + a + '² + ' + b + '², then add all 3 sides for perimeter.';
+      } else {
+        // Right Trapezoid Perimeter
+        const b2 = getRandomInt(4, 10);
+        const diff = getRandomInt(3, 8);
+        const b1 = b2 + diff;
+        const h = getRandomInt(4, 10);
+        const s = Math.sqrt(diff * diff + h * h);
+
+        rawVal = b1 + b2 + h + s;
+        drawTrapezoid(b1.toString(), b2.toString(), h.toString(), "?", false);
+        hintText = '💡 <strong>Hint:</strong> Use Pythagorean theorem to find the slanted side: s² = (' + b1 + ' - ' + b2 + ')² + ' + h + '², then add all 4 sides for perimeter.';
+      }
+    }
+
+    // Format display string strictly according to round mode
+    let displayAnswer = "";
+    let measureName = (targetType === 0) ? "Area" : "Perimeter";
+    let instructionHTML = "Find the <strong>" + measureName + "</strong> of the shape. ";
+
+    if (roundMode === 0) {
+      instructionHTML += "Round to the <strong>nearest tenth</strong>.";
+      displayAnswer = rawVal.toFixed(1);
+    } else {
+      instructionHTML += "Round to the <strong>nearest hundredth</strong>.";
+      displayAnswer = rawVal.toFixed(2);
+    }
+
+    instructionEl.innerHTML = instructionHTML;
+
+    currentProblem = {
+      rawVal: rawVal,
+      expectedAnswer: displayAnswer,
+      roundMode: roundMode,
+      measureName: measureName,
+      hintText: hintText,
+      explanation: 'Correct! <strong>' + measureName + ' = ' + displayAnswer + '</strong>'
+    };
+
+    attemptsOnCurrentProblem = 0;
+    userInput.value = '';
+    resetInputStyle();
+
+    if (!isMobile) {
+      userInput.focus();
+    }
+  }
+
+  function evaluateAnswer(userAnswer) {
+    const feedback = document.getElementById('feedback');
+    const cleanUser = userAnswer.trim();
+
+    // Strict format validation (e.g. requires "24.0" for tenths or "24.00" for hundredths)
+    const isCorrect = (cleanUser === currentProblem.expectedAnswer);
+
+    attemptsOnCurrentProblem++;
+
+    if (isCorrect) {
+      feedback.innerHTML = currentProblem.explanation;
+      feedback.className = "feedback correct";
+      
+      userInput.classList.remove('input-incorrect');
+      userInput.classList.add('input-correct');
+
+      if (attemptsOnCurrentProblem === 1) {
+        total++;
+        correct++;
+        streak++;
+      } else {
+        streak++;
+      }
+      
+      updateStats();
+      setTimeout(() => {
+        feedback.innerHTML = "";
+        generateProblem();
+      }, 1600);
+    } else {
+      userInput.classList.remove('input-correct');
+      userInput.classList.add('input-incorrect');
+
+      if (attemptsOnCurrentProblem === 1) {
+        // First wrong attempt: Show formula hint
+        feedback.innerHTML = currentProblem.hintText;
+        feedback.className = "feedback incorrect";
+        
+        total++;
+        incorrect++;
+        streak = 0;
+        updateStats();
+      } else {
+        // Second wrong attempt: Reveal answer
+        feedback.innerHTML = 'Incorrect. Correct ' + currentProblem.measureName.toLowerCase() + ' is <strong>' + currentProblem.expectedAnswer + '</strong>';
+        feedback.className = "feedback incorrect";
+        
+        streak = 0;
+        updateStats();
+      }
+    }
+  }
+
+  function updateStats() {
+    document.getElementById('streakVal').textContent = streak;
+    document.getElementById('totalVal').textContent = total;
+    document.getElementById('correctVal').textContent = correct;
+    document.getElementById('incorrectVal').textContent = incorrect;
+  }
+
+  // Keypad Event Handlers
+  document.querySelectorAll('.key-btn[data-val]').forEach(button => {
+    button.addEventListener('click', function() {
+      resetInputStyle();
+      const val = this.getAttribute('data-val');
+      if (val === '.' && userInput.value.includes('.')) return;
+      
+      userInput.value += val;
+      if (!isMobile) userInput.focus();
+    });
+  });
+
+  document.getElementById('backspaceBtn').addEventListener('click', function() {
+    resetInputStyle();
+    userInput.value = userInput.value.slice(0, -1);
+    if (!isMobile) userInput.focus();
+  });
+
+  userInput.addEventListener('input', resetInputStyle);
+
+  // Submit Logic
+  document.getElementById('answerForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    if (userInput.value.trim() === '') return;
+    evaluateAnswer(userInput.value);
+  });
+
+  generateProblem();
+</script>
+
+</body>
+</html>
