@@ -116,10 +116,15 @@
       border: none;
       border-radius: 6px;
       cursor: pointer;
-      transition: background-color 0.2s;
+      transition: background-color 0.2s, opacity 0.2s;
     }
-    .submit-btn:hover {
+    .submit-btn:hover:not(:disabled) {
       background-color: #0056b3;
+    }
+    .submit-btn:disabled {
+      background-color: #a0c4ff;
+      cursor: not-allowed;
+      opacity: 0.7;
     }
 
     /* Keypad Layout */
@@ -280,9 +285,11 @@
   let correct = 0;
   let incorrect = 0;
   let attemptsOnCurrentProblem = 0;
+  let isTransitioning = false;
 
   const userInput = document.getElementById('userInput');
   const problemDisplayEl = document.getElementById('problemDisplay');
+  const submitBtn = document.getElementById('submitBtn');
   const isMobile = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
 
   if (isMobile) {
@@ -307,7 +314,10 @@
   }
 
   function generateProblem() {
-    const type = getRandomInt(0, 3); // 0 = ax = b, 1 = b = ax, 2 = x/a = b, 3 = b = x/a
+    isTransitioning = false;
+    submitBtn.disabled = false;
+
+    const type = getRandomInt(0, 3);
     let xVal, a, b;
     let htmlContent = "";
     let textRepresentation = "";
@@ -321,11 +331,9 @@
       b = a * xVal;
 
       if (type === 0) {
-        // ax = b
         htmlContent = `${a}x = ${b}`;
         textRepresentation = `${a}x = ${b}`;
       } else {
-        // b = ax
         htmlContent = `${b} = ${a}x`;
         textRepresentation = `${b} = ${a}x`;
       }
@@ -343,11 +351,9 @@
       const aParen = a < 0 ? `(${a})` : `${a}`;
 
       if (type === 2) {
-        // x / a = b
         htmlContent = `<div class="eq-container"><div class="fraction"><span class="numerator">x</span><span class="denominator">${a}</span></div><span>=</span><span>${b}</span></div>`;
         textRepresentation = `x / ${a} = ${b}`;
       } else {
-        // b = x / a
         htmlContent = `<div class="eq-container"><span>${b}</span><span>=</span><div class="fraction"><span class="numerator">x</span><span class="denominator">${a}</span></div></div>`;
         textRepresentation = `${b} = x / ${a}`;
       }
@@ -383,6 +389,8 @@
   }
 
   function evaluateAnswer(userAnswer) {
+    if (isTransitioning) return;
+
     const feedback = document.getElementById('feedback');
     const parsedUserVal = parseUserAnswer(userAnswer);
     const isCorrect = (parsedUserVal !== null && parsedUserVal === currentProblem.expectedVal);
@@ -390,6 +398,9 @@
     attemptsOnCurrentProblem++;
 
     if (isCorrect) {
+      isTransitioning = true;
+      submitBtn.disabled = true;
+
       feedback.innerHTML = currentProblem.explanation;
       feedback.className = "feedback correct";
       
@@ -414,7 +425,6 @@
       userInput.classList.add('input-incorrect');
 
       if (attemptsOnCurrentProblem === 1) {
-        // First wrong attempt: Show hint
         feedback.innerHTML = currentProblem.hintText;
         feedback.className = "feedback incorrect";
         
@@ -423,7 +433,6 @@
         streak = 0;
         updateStats();
       } else {
-        // Second wrong attempt: Reveal answer
         feedback.innerHTML = `Incorrect. Solution is <strong>x = ${currentProblem.expectedVal}</strong>`;
         feedback.className = "feedback incorrect";
         
@@ -440,8 +449,8 @@
     document.getElementById('incorrectVal').textContent = incorrect;
   }
 
-  // Insert text at current cursor / selection position
   function insertAtCursor(val) {
+    if (isTransitioning) return;
     resetInputStyle();
     
     let start = userInput.selectionStart;
@@ -461,8 +470,8 @@
     }
   }
 
-  // Delete text at current cursor / selection position
   function backspaceAtCursor() {
+    if (isTransitioning) return;
     resetInputStyle();
 
     let start = userInput.selectionStart;
@@ -486,7 +495,6 @@
     }
   }
 
-  // Keypad Event Handlers
   document.querySelectorAll('.key-btn[data-val]').forEach(button => {
     button.addEventListener('click', function() {
       const val = this.getAttribute('data-val');
@@ -500,10 +508,9 @@
 
   userInput.addEventListener('input', resetInputStyle);
 
-  // Submit Logic
   document.getElementById('answerForm').addEventListener('submit', function(e) {
     e.preventDefault();
-    if (userInput.value.trim() === '') return;
+    if (isTransitioning || userInput.value.trim() === '') return;
     evaluateAnswer(userInput.value);
   });
 

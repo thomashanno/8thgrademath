@@ -84,10 +84,15 @@
       border: none;
       border-radius: 6px;
       cursor: pointer;
-      transition: background-color 0.2s;
+      transition: background-color 0.2s, opacity 0.2s;
     }
-    .submit-btn:hover {
+    .submit-btn:hover:not(:disabled) {
       background-color: #0056b3;
+    }
+    .submit-btn:disabled {
+      background-color: #a0c4ff;
+      cursor: not-allowed;
+      opacity: 0.7;
     }
 
     /* Keypad Layout */
@@ -248,9 +253,11 @@
   let correct = 0;
   let incorrect = 0;
   let attemptsOnCurrentProblem = 0;
+  let isTransitioning = false;
 
   const userInput = document.getElementById('userInput');
   const problemDisplayEl = document.getElementById('problemDisplay');
+  const submitBtn = document.getElementById('submitBtn');
   const isMobile = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
 
   if (isMobile) {
@@ -275,35 +282,33 @@
   }
 
   function generateProblem() {
-    const xVal = getRandomInt(-15, 20); // Solution value for x
-    const a = getRandomNonZero(1, 18);  // Constant to add or subtract
-    const type = getRandomInt(0, 4);    // 5 variations of addition/subtraction equations
+    isTransitioning = false;
+    submitBtn.disabled = false;
+
+    const xVal = getRandomInt(-15, 20);
+    const a = getRandomNonZero(1, 18);
+    const type = getRandomInt(0, 4);
 
     let eqStr = "";
     let hintMsg = "";
 
     if (type === 0) {
-      // x + a = b
       const b = xVal + a;
       eqStr = `x + ${a} = ${b}`;
       hintMsg = `💡 <strong>Hint:</strong> Subtract ${a} from both sides to isolate x: <strong>x = ${b} - ${a}</strong>`;
     } else if (type === 1) {
-      // x - a = b
       const b = xVal - a;
       eqStr = `x - ${a} = ${b}`;
       hintMsg = `💡 <strong>Hint:</strong> Add ${a} to both sides to isolate x: <strong>x = ${b} + ${a}</strong>`;
     } else if (type === 2) {
-      // a + x = b
       const b = a + xVal;
       eqStr = `${a} + x = ${b}`;
       hintMsg = `💡 <strong>Hint:</strong> Subtract ${a} from both sides to isolate x: <strong>x = ${b} - ${a}</strong>`;
     } else if (type === 3) {
-      // b = x + a
       const b = xVal + a;
       eqStr = `${b} = x + ${a}`;
       hintMsg = `💡 <strong>Hint:</strong> Subtract ${a} from both sides to isolate x: <strong>x = ${b} - ${a}</strong>`;
     } else {
-      // b = x - a
       const b = xVal - a;
       eqStr = `${b} = x - ${a}`;
       hintMsg = `💡 <strong>Hint:</strong> Add ${a} to both sides to isolate x: <strong>x = ${b} + ${a}</strong>`;
@@ -337,6 +342,8 @@
   }
 
   function evaluateAnswer(userAnswer) {
+    if (isTransitioning) return;
+
     const feedback = document.getElementById('feedback');
     const parsedUserVal = parseUserAnswer(userAnswer);
     const isCorrect = (parsedUserVal !== null && parsedUserVal === currentProblem.expectedVal);
@@ -344,6 +351,9 @@
     attemptsOnCurrentProblem++;
 
     if (isCorrect) {
+      isTransitioning = true;
+      submitBtn.disabled = true;
+
       feedback.innerHTML = currentProblem.explanation;
       feedback.className = "feedback correct";
       
@@ -368,7 +378,6 @@
       userInput.classList.add('input-incorrect');
 
       if (attemptsOnCurrentProblem === 1) {
-        // First wrong attempt: Show hint
         feedback.innerHTML = currentProblem.hintText;
         feedback.className = "feedback incorrect";
         
@@ -377,7 +386,6 @@
         streak = 0;
         updateStats();
       } else {
-        // Second wrong attempt: Reveal answer
         feedback.innerHTML = `Incorrect. Solution is <strong>x = ${currentProblem.expectedVal}</strong>`;
         feedback.className = "feedback incorrect";
         
@@ -394,8 +402,8 @@
     document.getElementById('incorrectVal').textContent = incorrect;
   }
 
-  // Insert text at current cursor / selection position
   function insertAtCursor(val) {
+    if (isTransitioning) return;
     resetInputStyle();
     
     let start = userInput.selectionStart;
@@ -415,8 +423,8 @@
     }
   }
 
-  // Delete text at current cursor / selection position
   function backspaceAtCursor() {
+    if (isTransitioning) return;
     resetInputStyle();
 
     let start = userInput.selectionStart;
@@ -440,7 +448,6 @@
     }
   }
 
-  // Keypad Event Handlers
   document.querySelectorAll('.key-btn[data-val]').forEach(button => {
     button.addEventListener('click', function() {
       const val = this.getAttribute('data-val');
@@ -454,10 +461,9 @@
 
   userInput.addEventListener('input', resetInputStyle);
 
-  // Submit Logic
   document.getElementById('answerForm').addEventListener('submit', function(e) {
     e.preventDefault();
-    if (userInput.value.trim() === '') return;
+    if (isTransitioning || userInput.value.trim() === '') return;
     evaluateAnswer(userInput.value);
   });
 
