@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Two-Step Equations Practice</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f7f6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 15px;
+      box-sizing: border-box;
+    }
+    .card {
+      background: white;
+      padding: 25px 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      text-align: center;
+      max-width: 420px;
+      width: 100%;
+    }
+
+    .instruction {
+      margin: 0 0 10px 0;
+      font-size: 15px;
+      color: #444;
+      line-height: 1.4;
+    }
+
+    .problem-display {
+      font-size: 30px;
+      font-weight: bold;
+      color: #111;
+      background-color: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      padding: 18px 12px;
+      margin: 15px 0 20px 0;
+      letter-spacing: 0.5px;
+      min-height: 52px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Vinculum Fraction Styling for Division */
+    .eq-container {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .fraction {
+      display: inline-flex;
+      flex-direction: column;
+      vertical-align: middle;
+      align-items: center;
+      line-height: 1.1;
+    }
+    .numerator {
+      border-bottom: 2.5px solid #111;
+      padding: 0 6px 2px 6px;
+      text-align: center;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .denominator {
+      padding: 2px 6px 0 6px;
+      text-align: center;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    input[type="text"] {
+      font-size: 22px;
+      padding: 10px;
+      width: 100%;
+      text-align: center;
+      border: 2px solid #ccc;
+      border-radius: 6px;
+      outline: none;
+      box-sizing: border-box;
+      background-color: #fff;
+      transition: border-color 0.2s, background-color 0.2s;
+    }
+    input[type="text"]:focus {
+      border-color: #007bff;
+    }
+
+    /* Input feedback states */
+    input[type="text"].input-correct {
+      border-color: #28a745 !important;
+      background-color: #e8f8ec !important;
+      color: #155724;
+    }
+    input[type="text"].input-incorrect {
+      border-color: #dc3545 !important;
+      background-color: #fdf2f2 !important;
+      color: #721c24;
+    }
+
+    .submit-btn {
+      margin-top: 12px;
+      width: 100%;
+      padding: 12px;
+      font-size: 18px;
+      font-weight: bold;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.2s, opacity 0.2s;
+    }
+    .submit-btn:hover:not(:disabled) {
+      background-color: #0056b3;
+    }
+    .submit-btn:disabled {
+      background-color: #a0c4ff;
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+
+    /* Keypad Layout */
+    .keypad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .key-btn {
+      padding: 12px 0;
+      font-size: 22px;
+      font-weight: bold;
+      background-color: #e9ecef;
+      color: #333;
+      border: 1px solid #ced4da;
+      border-radius: 6px;
+      cursor: pointer;
+      user-select: none;
+      touch-action: manipulation;
+    }
+    .key-btn:active {
+      background-color: #adb5bd;
+    }
+    .key-btn.action {
+      background-color: #6c757d;
+      color: white;
+      border-color: #5a6268;
+    }
+    .key-btn.action:active {
+      background-color: #495057;
+    }
+
+    .feedback {
+      margin-top: 15px;
+      font-size: 15px;
+      font-weight: bold;
+      min-height: 52px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      line-height: 1.4;
+      padding: 0 5px;
+    }
+    .correct { color: #28a745; }
+    .incorrect { color: #dc3545; }
+    
+    .stats-container {
+      margin-top: 20px;
+      padding-top: 15px;
+      border-top: 1px solid #eee;
+      display: flex;
+      justify-content: space-around;
+      font-size: 14px;
+      color: #555;
+    }
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .stat-value {
+      font-weight: bold;
+      font-size: 16px;
+      color: #333;
+    }
+    .nav-links {
+      margin-top: 18px;
+      padding-top: 12px;
+      border-top: 1px dashed #eee;
+      font-size: 14px;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      align-items: center;
+    }
+    .nav-links a {
+      color: #007bff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .nav-links a:hover {
+      text-decoration: underline;
+    }
+    .nav-links span {
+      color: #ccc;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h2>Two-Step Equations</h2>
+  <p class="instruction">Solve for <strong>x</strong> in two steps using inverse operations.</p>
+
+  <div class="problem-display" id="problemDisplay"></div>
+
+  <form id="answerForm">
+    <input type="text" id="userInput" placeholder="Type value for x..." autocomplete="off">
+    
+    <div class="keypad">
+      <!-- Row 1 -->
+      <button type="button" class="key-btn" data-val="1">1</button>
+      <button type="button" class="key-btn" data-val="2">2</button>
+      <button type="button" class="key-btn" data-val="3">3</button>
+
+      <!-- Row 2 -->
+      <button type="button" class="key-btn" data-val="4">4</button>
+      <button type="button" class="key-btn" data-val="5">5</button>
+      <button type="button" class="key-btn" data-val="6">6</button>
+
+      <!-- Row 3 -->
+      <button type="button" class="key-btn" data-val="7">7</button>
+      <button type="button" class="key-btn" data-val="8">8</button>
+      <button type="button" class="key-btn" data-val="9">9</button>
+
+      <!-- Row 4 -->
+      <button type="button" class="key-btn" data-val="-">-</button>
+      <button type="button" class="key-btn" data-val="0">0</button>
+      <button type="button" class="key-btn action" id="backspaceBtn">⌫</button>
+    </div>
+
+    <button type="submit" id="submitBtn" class="submit-btn">Submit Answer</button>
+  </form>
+
+  <div class="feedback" id="feedback"></div>
+
+  <div class="stats-container">
+    <div class="stat-item">
+      <span>Streak</span>
+      <span class="stat-value" id="streakVal">0</span>
+    </div>
+    <div class="stat-item">
+      <span>Total</span>
+      <span class="stat-value" id="totalVal">0</span>
+    </div>
+    <div class="stat-item">
+      <span>Correct</span>
+      <span class="stat-value" id="correctVal" style="color: #28a745;">0</span>
+    </div>
+    <div class="stat-item">
+      <span>Incorrect</span>
+      <span class="stat-value" id="incorrectVal" style="color: #dc3545;">0</span>
+    </div>
+  </div>
+
+  <div class="nav-links">
+    <a href="javascript:history.back()">← Go Back</a>
+    <span>|</span>
+    <a href="https://thomashanno.github.io/8thgrademath/index.html">🏠 Home</a>
+  </div>
+</div>
+
+<script>
+  let currentProblem = null;
+  let streak = 0;
+  let total = 0;
+  let correct = 0;
+  let incorrect = 0;
+  let attemptsOnCurrentProblem = 0;
+  let isTransitioning = false;
+
+  const userInput = document.getElementById('userInput');
+  const problemDisplayEl = document.getElementById('problemDisplay');
+  const submitBtn = document.getElementById('submitBtn');
+  const isMobile = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+
+  if (isMobile) {
+    userInput.setAttribute('readonly', 'true');
+    userInput.setAttribute('inputmode', 'none');
+  }
+
+  function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  function getRandomNonZero(min, max) {
+    let val = 0;
+    while (val === 0 || val === 1 || val === -1) {
+      val = getRandomInt(min, max);
+    }
+    return val;
+  }
+
+  function resetInputStyle() {
+    userInput.classList.remove('input-correct', 'input-incorrect');
+  }
+
+  function generateProblem() {
+    isTransitioning = false;
+    submitBtn.disabled = false;
+
+    // Pattern type:
+    // 0: ax + b = c
+    // 1: ax - b = c
+    // 2: b + ax = c
+    // 3: x/a + b = c (vinculum)
+    // 4: x/a - b = c (vinculum)
+    const pattern = getRandomInt(0, 4);
+
+    let xVal = getRandomInt(-12, 15);
+    if (xVal === 0) xVal = getRandomInt(1, 10);
+
+    let htmlContent = "";
+    let hintMsg = "";
+
+    if (pattern === 0 || pattern === 1 || pattern === 2) {
+      // --- MULTIPLICATION + CONSTANT ---
+      const a = getRandomNonZero(-8, 8);
+      const b = getRandomInt(1, 15);
+
+      if (pattern === 0) {
+        // ax + b = c
+        const c = a * xVal + b;
+        htmlContent = `${a}x + ${b} = ${c}`;
+        hintMsg = `💡 <strong>Hint:</strong> Step 1: Subtract ${b} from both sides to get <strong>${a}x = ${c - b}</strong>.<br>Step 2: Divide both sides by ${a < 0 ? `(${a})` : a}.`;
+      } else if (pattern === 1) {
+        // ax - b = c
+        const c = a * xVal - b;
+        htmlContent = `${a}x - ${b} = ${c}`;
+        hintMsg = `💡 <strong>Hint:</strong> Step 1: Add ${b} to both sides to get <strong>${a}x = ${c + b}</strong>.<br>Step 2: Divide both sides by ${a < 0 ? `(${a})` : a}.`;
+      } else {
+        // b + ax = c
+        const c = b + a * xVal;
+        htmlContent = `${b} + ${a < 0 ? `(${a}x)` : `${a}x`} = ${c}`;
+        hintMsg = `💡 <strong>Hint:</strong> Step 1: Subtract ${b} from both sides to isolate term with x.<br>Step 2: Divide both sides by ${a < 0 ? `(${a})` : a}.`;
+      }
+
+    } else {
+      // --- DIVISION + CONSTANT (WITH VINCULUM) ---
+      const a = getRandomNonZero(-8, 8);
+      const b = getRandomInt(1, 12);
+
+      if (pattern === 3) {
+        // x/a + b = c
+        const c = (xVal / a) + b;
+        // Ensure whole integer constants
+        if (!Number.isInteger(c)) {
+          xVal = a * getRandomInt(-10, 10);
+        }
+        const finalC = (xVal / a) + b;
+
+        htmlContent = `<div class="eq-container"><div class="fraction"><span class="numerator">x</span><span class="denominator">${a}</span></div><span>+</span><span>${b}</span><span>=</span><span>${finalC}</span></div>`;
+        hintMsg = `💡 <strong>Hint:</strong> Step 1: Subtract ${b} from both sides.<br>Step 2: Multiply both sides by ${a < 0 ? `(${a})` : a}.`;
+      } else {
+        // x/a - b = c
+        const c = (xVal / a) - b;
+        if (!Number.isInteger(c)) {
+          xVal = a * getRandomInt(-10, 10);
+        }
+        const finalC = (xVal / a) - b;
+
+        htmlContent = `<div class="eq-container"><div class="fraction"><span class="numerator">x</span><span class="denominator">${a}</span></div><span>-</span><span>${b}</span><span>=</span><span>${finalC}</span></div>`;
+        hintMsg = `💡 <strong>Hint:</strong> Step 1: Add ${b} to both sides.<br>Step 2: Multiply both sides by ${a < 0 ? `(${a})` : a}.`;
+      }
+    }
+
+    problemDisplayEl.innerHTML = htmlContent;
+
+    currentProblem = {
+      expectedVal: xVal,
+      hintText: hintMsg,
+      explanation: `Correct! <strong>x = ${xVal}</strong>`
+    };
+
+    attemptsOnCurrentProblem = 0;
+    userInput.value = '';
+    resetInputStyle();
+
+    if (!isMobile) {
+      userInput.focus();
+    }
+  }
+
+  function parseUserAnswer(inputStr) {
+    let clean = inputStr.trim().replace(/\s+/g, '').toLowerCase();
+    if (clean.startsWith('x=')) {
+      clean = clean.replace('x=', '');
+    }
+    const num = parseInt(clean, 10);
+    return isNaN(num) ? null : num;
+  }
+
+  function evaluateAnswer(userAnswer) {
+    if (isTransitioning) return;
+
+    const feedback = document.getElementById('feedback');
+    const parsedUserVal = parseUserAnswer(userAnswer);
+    const isCorrect = (parsedUserVal !== null && parsedUserVal === currentProblem.expectedVal);
+
+    attemptsOnCurrentProblem++;
+
+    if (isCorrect) {
+      isTransitioning = true;
+      submitBtn.disabled = true;
+
+      feedback.innerHTML = currentProblem.explanation;
+      feedback.className = "feedback correct";
+      
+      userInput.classList.remove('input-incorrect');
+      userInput.classList.add('input-correct');
+
+      if (attemptsOnCurrentProblem === 1) {
+        total++;
+        correct++;
+        streak++;
+      } else {
+        streak++;
+      }
+      
+      updateStats();
+      setTimeout(() => {
+        feedback.innerHTML = "";
+        generateProblem();
+      }, 1600);
+    } else {
+      userInput.classList.remove('input-correct');
+      userInput.classList.add('input-incorrect');
+
+      if (attemptsOnCurrentProblem === 1) {
+        feedback.innerHTML = currentProblem.hintText;
+        feedback.className = "feedback incorrect";
+        
+        total++;
+        incorrect++;
+        streak = 0;
+        updateStats();
+      } else {
+        feedback.innerHTML = `Incorrect. Solution is <strong>x = ${currentProblem.expectedVal}</strong>`;
+        feedback.className = "feedback incorrect";
+        
+        streak = 0;
+        updateStats();
+      }
+    }
+  }
+
+  function updateStats() {
+    document.getElementById('streakVal').textContent = streak;
+    document.getElementById('totalVal').textContent = total;
+    document.getElementById('correctVal').textContent = correct;
+    document.getElementById('incorrectVal').textContent = incorrect;
+  }
+
+  function insertAtCursor(val) {
+    if (isTransitioning) return;
+    resetInputStyle();
+    
+    let start = userInput.selectionStart;
+    let end = userInput.selectionEnd;
+
+    if (start === null || start === undefined) start = userInput.value.length;
+    if (end === null || end === undefined) end = userInput.value.length;
+
+    const currentText = userInput.value;
+    userInput.value = currentText.slice(0, start) + val + currentText.slice(end);
+
+    const newCursorPos = start + val.length;
+    userInput.setSelectionRange(newCursorPos, newCursorPos);
+
+    if (!isMobile) {
+      userInput.focus();
+    }
+  }
+
+  function backspaceAtCursor() {
+    if (isTransitioning) return;
+    resetInputStyle();
+
+    let start = userInput.selectionStart;
+    let end = userInput.selectionEnd;
+
+    if (start === null || start === undefined) start = userInput.value.length;
+    if (end === null || end === undefined) end = userInput.value.length;
+
+    const currentText = userInput.value;
+
+    if (start !== end) {
+      userInput.value = currentText.slice(0, start) + currentText.slice(end);
+      userInput.setSelectionRange(start, start);
+    } else if (start > 0) {
+      userInput.value = currentText.slice(0, start - 1) + currentText.slice(start);
+      userInput.setSelectionRange(start - 1, start - 1);
+    }
+
+    if (!isMobile) {
+      userInput.focus();
+    }
+  }
+
+  document.querySelectorAll('.key-btn[data-val]').forEach(button => {
+    button.addEventListener('click', function() {
+      const val = this.getAttribute('data-val');
+      insertAtCursor(val);
+    });
+  });
+
+  document.getElementById('backspaceBtn').addEventListener('click', function() {
+    backspaceAtCursor();
+  });
+
+  userInput.addEventListener('input', resetInputStyle);
+
+  document.getElementById('answerForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    if (isTransitioning || userInput.value.trim() === '') return;
+    evaluateAnswer(userInput.value);
+  });
+
+  generateProblem();
+</script>
+
+</body>
+</html>
