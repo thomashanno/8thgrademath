@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inverse Operations Practice</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f7f6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 15px;
+      box-sizing: border-box;
+      transition: background-color 0.6s ease;
+    }
+
+    /* High Streak Milestone Background (Streak >= 10) */
+    body.high-streak {
+      background-color: #d4edda;
+    }
+
+    .card {
+      background: white;
+      padding: 25px 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      text-align: center;
+      max-width: 420px;
+      width: 100%;
+      transition: border-color 0.6s ease, box-shadow 0.6s ease;
+    }
+
+    body.high-streak .card {
+      border: 2px solid #28a745;
+      box-shadow: 0 6px 20px rgba(40, 167, 69, 0.25);
+    }
+
+    .streak-badge {
+      display: none;
+      background-color: #28a745;
+      color: white;
+      font-size: 13px;
+      font-weight: bold;
+      padding: 5px 12px;
+      border-radius: 20px;
+      margin-bottom: 12px;
+      letter-spacing: 0.5px;
+      animation: pulse 2s infinite;
+    }
+
+    body.high-streak .streak-badge {
+      display: inline-block;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.04); }
+      100% { transform: scale(1); }
+    }
+
+    .instruction {
+      margin: 0 0 10px 0;
+      font-size: 15px;
+      color: #444;
+      line-height: 1.4;
+    }
+
+    .problem-display {
+      font-size: 30px;
+      font-weight: bold;
+      color: #111;
+      background-color: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      padding: 18px 12px;
+      margin: 15px 0 20px 0;
+      letter-spacing: 0.5px;
+      min-height: 52px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Vinculum Fraction Styling for Division */
+    .eq-container {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .fraction {
+      display: inline-flex;
+      flex-direction: column;
+      vertical-align: middle;
+      align-items: center;
+      line-height: 1.1;
+    }
+    .numerator {
+      border-bottom: 2.5px solid #111;
+      padding: 0 6px 2px 6px;
+      text-align: center;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .denominator {
+      padding: 2px 6px 0 6px;
+      text-align: center;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    /* Multiple Choice Options Layout */
+    .options-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .option-btn {
+      width: 100%;
+      padding: 14px 12px;
+      font-size: 16px;
+      font-weight: bold;
+      background-color: #ffffff;
+      color: #333;
+      border: 2px solid #ced4da;
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: center;
+      transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+      user-select: none;
+      touch-action: manipulation;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      background-color: #eef6ff;
+      border-color: #007bff;
+      color: #007bff;
+    }
+
+    .option-btn:disabled {
+      cursor: not-allowed;
+      opacity: 0.8;
+    }
+
+    .option-btn.correct-choice {
+      background-color: #e8f8ec !important;
+      border-color: #28a745 !important;
+      color: #155724 !important;
+    }
+
+    .option-btn.incorrect-choice {
+      background-color: #fdf2f2 !important;
+      border-color: #dc3545 !important;
+      color: #721c24 !important;
+    }
+
+    .feedback {
+      margin-top: 15px;
+      font-size: 15px;
+      font-weight: bold;
+      min-height: 48px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      line-height: 1.4;
+      padding: 0 5px;
+    }
+    .correct { color: #28a745; }
+    .incorrect { color: #dc3545; }
+
+    .stats-container {
+      margin-top: 20px;
+      padding-top: 15px;
+      border-top: 1px solid #eee;
+      display: flex;
+      justify-content: space-around;
+      font-size: 14px;
+      color: #555;
+    }
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .stat-value {
+      font-weight: bold;
+      font-size: 16px;
+      color: #333;
+    }
+
+    .nav-links {
+      margin-top: 18px;
+      padding-top: 12px;
+      border-top: 1px dashed #eee;
+      font-size: 14px;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      align-items: center;
+    }
+    .nav-links a {
+      color: #007bff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .nav-links a:hover {
+      text-decoration: underline;
+    }
+    .nav-links span {
+      color: #ccc;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <div class="streak-badge" id="streakBadge">🌟 10+ Streak! Great job, time to switch activities!</div>
+  <h2>Inverse Operations</h2>
+  <p class="instruction">Select the <strong>inverse operation</strong> needed to isolate <strong>x</strong>.</p>
+
+  <div class="problem-display" id="problemDisplay"></div>
+
+  <div class="options-grid" id="optionsContainer">
+    <!-- Option buttons rendered dynamically -->
+  </div>
+
+  <div class="feedback" id="feedback"></div>
+
+  <div class="stats-container">
+    <div class="stat-item">
+      <span>Streak</span>
+      <span class="stat-value" id="streakVal">0</span>
+    </div>
+    <div class="stat-item">
+      <span>Total</span>
+      <span class="stat-value" id="totalVal">0</span>
+    </div>
+    <div class="stat-item">
+      <span>Correct</span>
+      <span class="stat-value" id="correctVal" style="color: #28a745;">0</span>
+    </div>
+    <div class="stat-item">
+      <span>Incorrect</span>
+      <span class="stat-value" id="incorrectVal" style="color: #dc3545;">0</span>
+    </div>
+  </div>
+
+  <div class="nav-links">
+    <a href="javascript:history.back()">← Go Back</a>
+    <span>|</span>
+    <a href="https://thomashanno.github.io/8thgrademath/index.html">🏠 Home</a>
+  </div>
+</div>
+
+<script>
+  let currentProblem = null;
+  let streak = 0;
+  let total = 0;
+  let correct = 0;
+  let incorrect = 0;
+  let attemptsOnCurrentProblem = 0;
+  let isTransitioning = false;
+
+  const problemDisplayEl = document.getElementById('problemDisplay');
+  const optionsContainer = document.getElementById('optionsContainer');
+  const feedbackEl = document.getElementById('feedback');
+
+  function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  function getRandomNonZero(min, max) {
+    let val = 0;
+    while (val === 0 || val === 1 || val === -1) {
+      val = getRandomInt(min, max);
+    }
+    return val;
+  }
+
+  function shuffleArray(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  function generateProblem() {
+    isTransitioning = false;
+    feedbackEl.innerHTML = "";
+    feedbackEl.className = "feedback";
+
+    // Problem Types:
+    // 0: Addition (x + a = b)       -> Inverse: Subtract a from both sides
+    // 1: Subtraction (x - a = b)    -> Inverse: Add a to both sides
+    // 2: Multiplication (ax = b)    -> Inverse: Divide both sides by a
+    // 3: Division (x / a = b)       -> Inverse: Multiply both sides by a
+    const type = getRandomInt(0, 3);
+
+    let htmlContent = "";
+    let correctText = "";
+    let distractors = [];
+    let hintText = "";
+
+    if (type === 0) {
+      // --- ADDITION EQUATION ---
+      const a = getRandomInt(2, 18);
+      const b = getRandomInt(-15, 25);
+      htmlContent = `x + ${a} = ${b}`;
+
+      correctText = `Subtract ${a} from both sides`;
+      distractors = [
+        `Add ${a} to both sides`,
+        `Subtract ${b} from both sides`,
+        `Divide both sides by ${a}`
+      ];
+      hintText = `💡 <strong>Hint:</strong> Addition is undone by <strong>subtraction</strong>. Look for the number attached to x.`;
+
+    } else if (type === 1) {
+      // --- SUBTRACTION EQUATION ---
+      const a = getRandomInt(2, 18);
+      const b = getRandomInt(-15, 25);
+      htmlContent = `x - ${a} = ${b}`;
+
+      correctText = `Add ${a} to both sides`;
+      distractors = [
+        `Subtract ${a} from both sides`,
+        `Add ${b} to both sides`,
+        `Multiply both sides by ${a}`
+      ];
+      hintText = `💡 <strong>Hint:</strong> Subtraction is undone by <strong>addition</strong>. Look for the number attached to x.`;
+
+    } else if (type === 2) {
+      // --- MULTIPLICATION EQUATION ---
+      const a = getRandomNonZero(-12, 12);
+      const b = getRandomInt(-30, 30);
+      htmlContent = `${a}x = ${b}`;
+
+      const aLabel = a < 0 ? `${a}` : `${a}`;
+      correctText = `Divide both sides by ${aLabel}`;
+      distractors = [
+        `Multiply both sides by ${aLabel}`,
+        `Divide both sides by ${b}`,
+        `Subtract ${aLabel} from both sides`
+      ];
+      hintText = `💡 <strong>Hint:</strong> Multiplication is undone by <strong>division</strong>. Divide by the exact coefficient in front of x.`;
+
+    } else {
+      // --- DIVISION EQUATION (WITH VINCULUM) ---
+      const a = getRandomNonZero(-12, 12);
+      const b = getRandomInt(-15, 15);
+      htmlContent = `<div class="eq-container"><div class="fraction"><span class="numerator">x</span><span class="denominator">${a}</span></div><span>=</span><span>${b}</span></div>`;
+
+      const aLabel = a < 0 ? `${a}` : `${a}`;
+      correctText = `Multiply both sides by ${aLabel}`;
+      distractors = [
+        `Divide both sides by ${aLabel}`,
+        `Multiply both sides by ${b}`,
+        `Add ${aLabel} to both sides`
+      ];
+      hintText = `💡 <strong>Hint:</strong> Division is undone by <strong>multiplication</strong>. Multiply by the number in the denominator.`;
+    }
+
+    problemDisplayEl.innerHTML = htmlContent;
+
+    // Combine correct answer with distractors and shuffle
+    const options = shuffleArray([
+      { text: correctText, isCorrect: true },
+      { text: distractors[0], isCorrect: false },
+      { text: distractors[1], isCorrect: false },
+      { text: distractors[2], isCorrect: false }
+    ]);
+
+    currentProblem = {
+      correctText: correctText,
+      hintText: hintText,
+      options: options
+    };
+
+    attemptsOnCurrentProblem = 0;
+    renderOptions();
+  }
+
+  function renderOptions() {
+    optionsContainer.innerHTML = "";
+    currentProblem.options.forEach((opt, idx) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'option-btn';
+      btn.textContent = opt.text;
+      btn.addEventListener('click', () => handleOptionSelect(idx));
+      optionsContainer.appendChild(btn);
+    });
+  }
+
+  function handleOptionSelect(selectedIndex) {
+    if (isTransitioning) return;
+
+    const selectedOption = currentProblem.options[selectedIndex];
+    const buttons = optionsContainer.querySelectorAll('.option-btn');
+
+    attemptsOnCurrentProblem++;
+
+    if (selectedOption.isCorrect) {
+      isTransitioning = true;
+      buttons.forEach(btn => btn.disabled = true);
+      buttons[selectedIndex].classList.add('correct-choice');
+
+      feedbackEl.innerHTML = `Correct! To solve, you <strong>${selectedOption.text}</strong>.`;
+      feedbackEl.className = "feedback correct";
+
+      if (attemptsOnCurrentProblem === 1) {
+        total++;
+        correct++;
+        streak++;
+      } else {
+        streak++;
+      }
+
+      updateStats();
+
+      setTimeout(() => {
+        generateProblem();
+      }, 1600);
+
+    } else {
+      buttons[selectedIndex].classList.add('incorrect-choice');
+      buttons[selectedIndex].disabled = true;
+
+      if (attemptsOnCurrentProblem === 1) {
+        feedbackEl.innerHTML = currentProblem.hintText;
+        feedbackEl.className = "feedback incorrect";
+
+        total++;
+        incorrect++;
+        streak = 0;
+        updateStats();
+      } else {
+        feedbackEl.innerHTML = `Incorrect. The correct step is to <strong>${currentProblem.correctText}</strong>.`;
+        feedbackEl.className = "feedback incorrect";
+
+        streak = 0;
+        updateStats();
+      }
+    }
+  }
+
+  function updateStats() {
+    document.getElementById('streakVal').textContent = streak;
+    document.getElementById('totalVal').textContent = total;
+    document.getElementById('correctVal').textContent = correct;
+    document.getElementById('incorrectVal').textContent = incorrect;
+
+    // High Streak Milestone Visual Toggle (Streak >= 10)
+    if (streak >= 10) {
+      document.body.classList.add('high-streak');
+    } else {
+      document.body.classList.remove('high-streak');
+    }
+  }
+
+  generateProblem();
+</script>
+
+</body>
+</html>
