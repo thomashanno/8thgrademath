@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Expressions & Equations Flashcards</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f7f6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 15px;
+      box-sizing: border-box;
+    }
+    .card-container {
+      background: white;
+      padding: 25px 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      text-align: center;
+      max-width: 420px;
+      width: 100%;
+    }
+    .header {
+      margin-bottom: 15px;
+    }
+    .header h2 {
+      margin: 0 0 5px 0;
+      color: #333;
+    }
+    .instruction {
+      font-size: 13px;
+      color: #666;
+      margin: 0 0 15px 0;
+    }
+
+    /* Progress Bar */
+    .progress-container {
+      width: 100%;
+      background-color: #e9ecef;
+      border-radius: 10px;
+      height: 8px;
+      margin-bottom: 15px;
+      overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background-color: #007bff;
+      transition: width 0.3s ease;
+    }
+
+    /* 3D Flip Card Effect */
+    .flashcard-wrapper {
+      perspective: 1000px;
+      width: 100%;
+      height: 230px;
+      cursor: pointer;
+      margin-bottom: 20px;
+    }
+    .flashcard {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.5s ease;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .flashcard.flipped {
+      transform: rotateY(180deg);
+    }
+    .card-front, .card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      box-sizing: border-box;
+      border-radius: 10px;
+      border: 2px solid #dee2e6;
+      background-color: #f8f9fa;
+    }
+    .card-front {
+      color: #007bff;
+      font-size: 28px;
+      font-weight: bold;
+    }
+    .card-back {
+      background-color: #eef6ff;
+      color: #333;
+      transform: rotateY(180deg);
+      font-size: 20px;
+      font-weight: bold;
+      line-height: 1.4;
+    }
+    .card-back.definition-text {
+      font-size: 16px;
+      font-weight: normal;
+    }
+    .card-hint {
+      position: absolute;
+      bottom: 10px;
+      font-size: 12px;
+      color: #888;
+      font-weight: normal;
+    }
+
+    /* Action & Navigation Buttons */
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    .btn {
+      flex: 1;
+      padding: 10px 14px;
+      font-size: 14px;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.2s, opacity 0.2s;
+    }
+    .btn:active {
+      opacity: 0.8;
+    }
+    .btn-nav {
+      background-color: #6c757d;
+      color: white;
+    }
+    .btn-correct {
+      background-color: #28a745;
+      color: white;
+    }
+    .btn-incorrect {
+      background-color: #dc3545;
+      color: white;
+    }
+    .btn-secondary {
+      background-color: #e2e6ea;
+      color: #333;
+      border: 1px solid #ced4da;
+    }
+
+    .stats-container {
+      margin-top: 20px;
+      padding-top: 15px;
+      border-top: 1px solid #eee;
+      display: flex;
+      justify-content: space-around;
+      font-size: 14px;
+      color: #555;
+    }
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .stat-value {
+      font-weight: bold;
+      font-size: 16px;
+      color: #333;
+    }
+
+    .nav-links {
+      margin-top: 18px;
+      padding-top: 12px;
+      border-top: 1px dashed #eee;
+      font-size: 14px;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      align-items: center;
+    }
+    .nav-links a {
+      color: #007bff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .nav-links a:hover {
+      text-decoration: underline;
+    }
+    .nav-links span {
+      color: #ccc;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card-container">
+  <div class="header">
+    <h2>Expressions & Equations</h2>
+    <p class="instruction">Tap card to flip definition</p>
+  </div>
+
+  <div class="progress-container">
+    <div class="progress-bar" id="progressBar" style="width: 0%;"></div>
+  </div>
+
+  <div class="flashcard-wrapper" id="cardWrapper">
+    <div class="flashcard" id="flashcard">
+      <div class="card-front">
+        <span id="termText">Term</span>
+        <span class="card-hint">Tap to flip 🔄</span>
+      </div>
+      <div class="card-back definition-text" id="cardBack">
+        <span id="defText">Definition loading...</span>
+        <span class="card-hint">Tap to flip 🔄</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Response Assessment Buttons -->
+  <div class="controls">
+    <button type="button" class="btn btn-incorrect" id="btnWrong">Needs Practice 👎</button>
+    <button type="button" class="btn btn-correct" id="btnRight">Got It! 👍</button>
+  </div>
+
+  <!-- Utility Controls -->
+  <div class="controls">
+    <button type="button" class="btn btn-nav" id="btnPrev">← Prev</button>
+    <button type="button" class="btn btn-secondary" id="btnShuffle">Shuffle 🔀</button>
+    <button type="button" class="btn btn-nav" id="btnNext">Next →</button>
+  </div>
+
+  <div class="stats-container">
+    <div class="stat-item">
+      <span>Card</span>
+      <span class="stat-value" id="cardNumVal">1 / 15</span>
+    </div>
+    <div class="stat-item">
+      <span>Mastered</span>
+      <span class="stat-value" id="masteredVal" style="color: #28a745;">0</span>
+    </div>
+    <div class="stat-item">
+      <span>Reviewing</span>
+      <span class="stat-value" id="reviewVal" style="color: #dc3545;">15</span>
+    </div>
+  </div>
+
+  <div class="nav-links">
+    <a href="javascript:history.back()">← Go Back</a>
+    <span>|</span>
+    <a href="https://thomashanno.github.io/8thgrademath/index.html">🏠 Home</a>
+  </div>
+</div>
+
+<script>
+  const vocabulary = [
+    {
+      term: "Term",
+      definition: "A single number, variable, or numbers and variables multiplied together (e.g., 4x, 7, or -2y²).",
+      isShort: false
+    },
+    {
+      term: "Constant",
+      definition: "A number with a fixed value that stands alone without a variable attached (e.g., in 3x + 5, 5 is the constant).",
+      isShort: false
+    },
+    {
+      term: "Coefficient",
+      definition: "The number multiplied by a variable in an algebraic term (e.g., in -7x, -7 is the coefficient).",
+      isShort: false
+    },
+    {
+      term: "Variable",
+      definition: "A symbol or letter (like x or y) used to represent an unknown numerical value.",
+      isShort: false
+    },
+    {
+      term: "Expression",
+      definition: "A mathematical phrase containing numbers, variables, and operation symbols, but NO equals sign (e.g., 2x + 5).",
+      isShort: false
+    },
+    {
+      term: "Equation",
+      definition: "A mathematical statement that two expressions are equal, containing an equals sign (e.g., 2x + 5 = 11).",
+      isShort: false
+    },
+    {
+      term: "Inverse Operations",
+      definition: "Operations that undo each other (e.g., addition & subtraction, multiplication & division).",
+      isShort: false
+    },
+    {
+      term: "Solution",
+      definition: "A specific value for a variable that makes an equation true when substituted back in.",
+      isShort: false
+    },
+    {
+      term: "One Solution",
+      definition: "Occurs when an equation simplifies to x = a, meaning exactly one number satisfies the equation.",
+      isShort: false
+    },
+    {
+      term: "No Solution",
+      definition: "Occurs when an equation simplifies to a false statement like 0 = 5 (meaning no value of x works).",
+      isShort: false
+    },
+    {
+      term: "Infinitely Many Solutions",
+      definition: "Occurs when an equation simplifies to a true statement like 5 = 5 or x = x (meaning any number works).",
+      isShort: false
+    },
+    {
+      term: "Distribute",
+      definition: "To multiply a factor outside parentheses by every term inside: a(b + c) = ab + ac.",
+      isShort: false
+    },
+    {
+      term: "Like Terms",
+      definition: "Terms that contain the exact same variables raised to the exact same exponents (e.g., 4x and -9x).",
+      isShort: false
+    },
+    {
+      term: "Combine Like Terms",
+      definition: "To add or subtract the coefficients of like terms to shorten an expression (e.g., 3x + 5x = 8x).",
+      isShort: false
+    },
+    {
+      term: "Simplify",
+      definition: "To rewrite an expression in its shortest, simplest form by distributing and combining like terms.",
+      isShort: false
+    }
+  ];
+
+  let deck = [...vocabulary];
+  let currentIndex = 0;
+  let masteredSet = new Set();
+
+  const flashcard = document.getElementById('flashcard');
+  const cardWrapper = document.getElementById('cardWrapper');
+  const termText = document.getElementById('termText');
+  const defText = document.getElementById('defText');
+  const cardBack = document.getElementById('cardBack');
+
+  function renderCard() {
+    flashcard.classList.remove('flipped');
+
+    setTimeout(() => {
+      const current = deck[currentIndex];
+      termText.textContent = current.term;
+      defText.textContent = current.definition;
+
+      if (current.isShort) {
+        cardBack.classList.remove('definition-text');
+      } else {
+        cardBack.classList.add('definition-text');
+      }
+
+      document.getElementById('cardNumVal').textContent = `${currentIndex + 1} / ${deck.length}`;
+      document.getElementById('masteredVal').textContent = masteredSet.size;
+      document.getElementById('reviewVal').textContent = vocabulary.length - masteredSet.size;
+
+      const progressPercent = ((currentIndex + 1) / deck.length) * 100;
+      document.getElementById('progressBar').style.width = `${progressPercent}%`;
+    }, 150);
+  }
+
+  cardWrapper.addEventListener('click', () => {
+    flashcard.classList.toggle('flipped');
+  });
+
+  document.getElementById('btnNext').addEventListener('click', () => {
+    if (currentIndex < deck.length - 1) {
+      currentIndex++;
+    } else {
+      currentIndex = 0;
+    }
+    renderCard();
+  });
+
+  document.getElementById('btnPrev').addEventListener('click', () => {
+    if (currentIndex > 0) {
+      currentIndex--;
+    } else {
+      currentIndex = deck.length - 1;
+    }
+    renderCard();
+  });
+
+  document.getElementById('btnRight').addEventListener('click', () => {
+    masteredSet.add(deck[currentIndex].term);
+    nextCard();
+  });
+
+  document.getElementById('btnWrong').addEventListener('click', () => {
+    masteredSet.delete(deck[currentIndex].term);
+    nextCard();
+  });
+
+  function nextCard() {
+    if (currentIndex < deck.length - 1) {
+      currentIndex++;
+    } else {
+      currentIndex = 0;
+    }
+    renderCard();
+  }
+
+  document.getElementById('btnShuffle').addEventListener('click', () => {
+    for (let i = deck.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [deck[i], deck[j]] = [deck[j], deck[i]];
+    }
+    currentIndex = 0;
+    renderCard();
+  });
+
+  renderCard();
+</script>
+
+</body>
+</html>
