@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Number of Solutions (Intermediate) Practice</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f7f6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 15px;
+      box-sizing: border-box;
+      transition: background-color 0.6s ease;
+    }
+
+    /* High Streak Milestone Background (Streak >= 10) */
+    body.high-streak {
+      background-color: #d4edda;
+    }
+
+    .card {
+      background: white;
+      padding: 25px 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      text-align: center;
+      max-width: 440px;
+      width: 100%;
+      transition: border-color 0.6s ease, box-shadow 0.6s ease;
+    }
+
+    body.high-streak .card {
+      border: 2px solid #28a745;
+      box-shadow: 0 6px 20px rgba(40, 167, 69, 0.25);
+    }
+
+    .streak-badge {
+      display: none;
+      background-color: #28a745;
+      color: white;
+      font-size: 13px;
+      font-weight: bold;
+      padding: 5px 12px;
+      border-radius: 20px;
+      margin-bottom: 12px;
+      letter-spacing: 0.5px;
+      animation: pulse 2s infinite;
+    }
+
+    body.high-streak .streak-badge {
+      display: inline-block;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.04); }
+      100% { transform: scale(1); }
+    }
+
+    .instruction {
+      margin: 0 0 10px 0;
+      font-size: 15px;
+      color: #444;
+      line-height: 1.4;
+    }
+
+    .problem-display {
+      font-size: 26px;
+      font-weight: bold;
+      color: #111;
+      background-color: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      padding: 18px 12px;
+      margin: 15px 0 20px 0;
+      letter-spacing: 0.5px;
+      min-height: 52px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      word-break: break-word;
+    }
+
+    /* Option Buttons Layout */
+    .options-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 15px;
+    }
+
+    .option-btn {
+      width: 100%;
+      padding: 15px 12px;
+      font-size: 17px;
+      font-weight: bold;
+      background-color: #ffffff;
+      color: #333;
+      border: 2px solid #ced4da;
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: center;
+      transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+      user-select: none;
+      touch-action: manipulation;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      background-color: #eef6ff;
+      border-color: #007bff;
+      color: #007bff;
+    }
+
+    .option-btn:disabled {
+      cursor: not-allowed;
+      opacity: 0.8;
+    }
+
+    .option-btn.correct-choice {
+      background-color: #e8f8ec !important;
+      border-color: #28a745 !important;
+      color: #155724 !important;
+    }
+
+    .option-btn.incorrect-choice {
+      background-color: #fdf2f2 !important;
+      border-color: #dc3545 !important;
+      color: #721c24 !important;
+    }
+
+    .feedback {
+      margin-top: 15px;
+      font-size: 15px;
+      font-weight: bold;
+      min-height: 52px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      line-height: 1.4;
+      padding: 0 5px;
+    }
+    .correct { color: #28a745; }
+    .incorrect { color: #dc3545; }
+
+    .stats-container {
+      margin-top: 20px;
+      padding-top: 15px;
+      border-top: 1px solid #eee;
+      display: flex;
+      justify-content: space-around;
+      font-size: 14px;
+      color: #555;
+    }
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .stat-value {
+      font-weight: bold;
+      font-size: 16px;
+      color: #333;
+    }
+
+    .nav-links {
+      margin-top: 18px;
+      padding-top: 12px;
+      border-top: 1px dashed #eee;
+      font-size: 14px;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      align-items: center;
+    }
+    .nav-links a {
+      color: #007bff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .nav-links a:hover {
+      text-decoration: underline;
+    }
+    .nav-links span {
+      color: #ccc;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <div class="streak-badge" id="streakBadge">🌟 10+ Streak! Leveling up your equation skills!</div>
+  <h2>Number of Solutions</h2>
+  <p class="instruction">Simplify first, then determine the number of solutions.</p>
+
+  <div class="problem-display" id="problemDisplay"></div>
+
+  <div class="options-grid" id="optionsContainer">
+    <button type="button" class="option-btn" data-choice="One Solution">One Solution</button>
+    <button type="button" class="option-btn" data-choice="No Solution">No Solution</button>
+    <button type="button" class="option-btn" data-choice="Infinitely Many Solutions">Infinitely Many Solutions</button>
+  </div>
+
+  <div class="feedback" id="feedback"></div>
+
+  <div class="stats-container">
+    <div class="stat-item">
+      <span>Streak</span>
+      <span class="stat-value" id="streakVal">0</span>
+    </div>
+    <div class="stat-item">
+      <span>Total</span>
+      <span class="stat-value" id="totalVal">0</span>
+    </div>
+    <div class="stat-item">
+      <span>Correct</span>
+      <span class="stat-value" id="correctVal" style="color: #28a745;">0</span>
+    </div>
+    <div class="stat-item">
+      <span>Incorrect</span>
+      <span class="stat-value" id="incorrectVal" style="color: #dc3545;">0</span>
+    </div>
+  </div>
+
+  <div class="nav-links">
+    <a href="javascript:history.back()">← Go Back</a>
+    <span>|</span>
+    <a href="https://thomashanno.github.io/8thgrademath/index.html">🏠 Home</a>
+  </div>
+</div>
+
+<script>
+  let currentProblem = null;
+  let streak = 0;
+  let total = 0;
+  let correct = 0;
+  let incorrect = 0;
+  let attemptsOnCurrentProblem = 0;
+  let isTransitioning = false;
+
+  const problemDisplayEl = document.getElementById('problemDisplay');
+  const optionButtons = document.querySelectorAll('.option-btn');
+  const feedbackEl = document.getElementById('feedback');
+
+  function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  function getRandomNonZero(min, max) {
+    let val = 0;
+    while (val === 0) {
+      val = getRandomInt(min, max);
+    }
+    return val;
+  }
+
+  function resetOptionStyles() {
+    optionButtons.forEach(btn => {
+      btn.disabled = false;
+      btn.classList.remove('correct-choice', 'incorrect-choice');
+    });
+  }
+
+  function formatLinearTerm(coeff) {
+    if (coeff === 0) return '';
+    if (coeff === 1) return 'x';
+    if (coeff === -1) return '-x';
+    return `${coeff}x`;
+  }
+
+  function formatExpression(coeff, constVal) {
+    const termStr = formatLinearTerm(coeff);
+    if (termStr === '') return `${constVal}`;
+    if (constVal === 0) return termStr;
+    if (constVal > 0) return `${termStr} + ${constVal}`;
+    return `${termStr} - ${Math.abs(constVal)}`;
+  }
+
+  function generateProblem() {
+    isTransitioning = false;
+    resetOptionStyles();
+    feedbackEl.innerHTML = "";
+    feedbackEl.className = "feedback";
+
+    // Categories:
+    // 0: One Solution
+    // 1: No Solution
+    // 2: Infinitely Many Solutions
+    const category = getRandomInt(0, 2);
+
+    // Scaffold Type on Left Side:
+    // 'distribute': e.g., 2(3x + 1) or 3(x - 2) + 4
+    // 'combine': e.g., 2x + 5 + 3x
+    const scaffoldType = Math.random() < 0.5 ? 'distribute' : 'combine';
+
+    let leftDisplay = "";
+    let A_left = 0;
+    let B_left = 0;
+
+    if (scaffoldType === 'distribute') {
+      const factor = getRandomNonZero(-4, 5);
+      const factorVal = factor === 1 ? 2 : factor; // Avoid factor = 1
+      const a1 = getRandomNonZero(-3, 3);
+      const b1 = getRandomInt(-6, 6);
+      const c1 = Math.random() < 0.5 ? getRandomInt(-8, 8) : 0;
+
+      leftDisplay = `${factorVal}(${formatExpression(a1, b1)})`;
+      if (c1 > 0) leftDisplay += ` + ${c1}`;
+      else if (c1 < 0) leftDisplay += ` - ${Math.abs(c1)}`;
+
+      A_left = factorVal * a1;
+      B_left = factorVal * b1 + c1;
+
+    } else {
+      // Combine like terms
+      const a1 = getRandomNonZero(-5, 5);
+      let a2 = getRandomNonZero(-5, 5);
+      while (a1 + a2 === 0) {
+        a2 = getRandomNonZero(-5, 5);
+      }
+      const b1 = getRandomInt(-10, 10);
+
+      leftDisplay = `${formatLinearTerm(a1)}`;
+      if (b1 > 0) leftDisplay += ` + ${b1}`;
+      else if (b1 < 0) leftDisplay += ` - ${Math.abs(b1)}`;
+      if (a2 > 0) leftDisplay += ` + ${formatLinearTerm(a2)}`;
+      else leftDisplay += ` - ${formatLinearTerm(Math.abs(a2))}`;
+
+      A_left = a1 + a2;
+      B_left = b1;
+    }
+
+    let A_right = 0;
+    let B_right = 0;
+    let correctCategory = "";
+    let explanationMsg = "";
+
+    if (category === 0) {
+      correctCategory = "One Solution";
+      A_right = getRandomNonZero(-8, 8);
+      while (A_right === A_left) {
+        A_right = getRandomNonZero(-8, 8);
+      }
+      B_right = getRandomInt(-12, 12);
+
+      explanationMsg = `Correct! After simplifying to <strong>${formatExpression(A_left, B_left)} = ${formatExpression(A_right, B_right)}</strong>, the <strong>x</strong> coefficients are different, giving <strong>One Solution</strong>.`;
+
+    } else if (category === 1) {
+      correctCategory = "No Solution";
+      A_right = A_left;
+      B_right = getRandomInt(-12, 12);
+      while (B_right === B_left) {
+        B_right = getRandomInt(-12, 12);
+      }
+
+      explanationMsg = `Correct! After simplifying to <strong>${formatExpression(A_left, B_left)} = ${formatExpression(A_right, B_right)}</strong>, the <strong>x</strong> terms match but constants differ, leaving <strong>No Solution</strong>.`;
+
+    } else {
+      correctCategory = "Infinitely Many Solutions";
+      A_right = A_left;
+      B_right = B_left;
+
+      explanationMsg = `Correct! After simplifying to <strong>${formatExpression(A_left, B_left)} = ${formatExpression(A_right, B_right)}</strong>, both sides are identical, so there are <strong>Infinitely Many Solutions</strong>.`;
+    }
+
+    const rightDisplay = formatExpression(A_right, B_right);
+    const displayEq = `${leftDisplay} = ${rightDisplay}`;
+    const simplifiedEq = `${formatExpression(A_left, B_left)} = ${rightDisplay}`;
+
+    problemDisplayEl.textContent = displayEq;
+
+    const hintMsg = `💡 <strong>Hint:</strong> Simplify the left side first to get: <strong>${simplifiedEq}</strong>.<br>` +
+      `• Different x coefficients → <strong>One Solution</strong><br>` +
+      `• Same x coefficient, different constants → <strong>No Solution</strong><br>` +
+      `• Exactly identical sides → <strong>Infinitely Many Solutions</strong>`;
+
+    currentProblem = {
+      correctCategory: correctCategory,
+      simplifiedEq: simplifiedEq,
+      hintText: hintMsg,
+      explanation: explanationMsg
+    };
+
+    attemptsOnCurrentProblem = 0;
+  }
+
+  function handleChoiceSelect(selectedChoice, clickedButton) {
+    if (isTransitioning) return;
+
+    attemptsOnCurrentProblem++;
+
+    if (selectedChoice === currentProblem.correctCategory) {
+      isTransitioning = true;
+      optionButtons.forEach(btn => btn.disabled = true);
+      clickedButton.classList.add('correct-choice');
+
+      feedbackEl.innerHTML = currentProblem.explanation;
+      feedbackEl.className = "feedback correct";
+
+      if (attemptsOnCurrentProblem === 1) {
+        total++;
+        correct++;
+        streak++;
+      } else {
+        streak++;
+      }
+
+      updateStats();
+
+      setTimeout(() => {
+        generateProblem();
+      }, 1800);
+
+    } else {
+      clickedButton.classList.add('incorrect-choice');
+      clickedButton.disabled = true;
+
+      if (attemptsOnCurrentProblem === 1) {
+        feedbackEl.innerHTML = currentProblem.hintText;
+        feedbackEl.className = "feedback incorrect";
+
+        total++;
+        incorrect++;
+        streak = 0;
+        updateStats();
+      } else {
+        feedbackEl.innerHTML = `Incorrect. Simplifies to <strong>${currentProblem.simplifiedEq}</strong> which has <strong>${currentProblem.correctCategory}</strong>.`;
+        feedbackEl.className = "feedback incorrect";
+
+        streak = 0;
+        updateStats();
+      }
+    }
+  }
+
+  function updateStats() {
+    document.getElementById('streakVal').textContent = streak;
+    document.getElementById('totalVal').textContent = total;
+    document.getElementById('correctVal').textContent = correct;
+    document.getElementById('incorrectVal').textContent = incorrect;
+
+    // High Streak Milestone Visual Toggle (Streak >= 10)
+    if (streak >= 10) {
+      document.body.classList.add('high-streak');
+    } else {
+      document.body.classList.remove('high-streak');
+    }
+  }
+
+  optionButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      const choice = this.getAttribute('data-choice');
+      handleChoiceSelect(choice, this);
+    });
+  });
+
+  generateProblem();
+</script>
+
+</body>
+</html>

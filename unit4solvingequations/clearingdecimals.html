@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clearing Decimals Practice</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f7f6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 15px;
+      box-sizing: border-box;
+      transition: background-color 0.6s ease;
+    }
+
+    /* High Streak Milestone Background (Streak >= 10) */
+    body.high-streak {
+      background-color: #d4edda;
+    }
+
+    .card {
+      background: white;
+      padding: 25px 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      text-align: center;
+      max-width: 440px;
+      width: 100%;
+      transition: border-color 0.6s ease, box-shadow 0.6s ease;
+    }
+
+    body.high-streak .card {
+      border: 2px solid #28a745;
+      box-shadow: 0 6px 20px rgba(40, 167, 69, 0.25);
+    }
+
+    .streak-badge {
+      display: none;
+      background-color: #28a745;
+      color: white;
+      font-size: 13px;
+      font-weight: bold;
+      padding: 5px 12px;
+      border-radius: 20px;
+      margin-bottom: 12px;
+      letter-spacing: 0.5px;
+      animation: pulse 2s infinite;
+    }
+
+    body.high-streak .streak-badge {
+      display: inline-block;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.04); }
+      100% { transform: scale(1); }
+    }
+
+    .instruction {
+      margin: 0 0 10px 0;
+      font-size: 14px;
+      color: #444;
+      line-height: 1.4;
+    }
+
+    .problem-display {
+      font-size: 24px;
+      font-weight: bold;
+      color: #111;
+      background-color: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      padding: 18px 12px;
+      margin: 15px 0 20px 0;
+      letter-spacing: 0.5px;
+      min-height: 56px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      word-break: break-word;
+    }
+
+    input[type="text"] {
+      font-size: 22px;
+      padding: 10px;
+      width: 100%;
+      text-align: center;
+      border: 2px solid #ccc;
+      border-radius: 6px;
+      outline: none;
+      box-sizing: border-box;
+      background-color: #fff;
+      transition: border-color 0.2s, background-color 0.2s;
+    }
+    input[type="text"]:focus {
+      border-color: #007bff;
+    }
+
+    /* Input feedback states */
+    input[type="text"].input-correct {
+      border-color: #28a745 !important;
+      background-color: #e8f8ec !important;
+      color: #155724;
+    }
+    input[type="text"].input-incorrect {
+      border-color: #dc3545 !important;
+      background-color: #fdf2f2 !important;
+      color: #721c24;
+    }
+
+    .submit-btn {
+      margin-top: 12px;
+      width: 100%;
+      padding: 12px;
+      font-size: 18px;
+      font-weight: bold;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.2s, opacity 0.2s;
+    }
+    .submit-btn:hover:not(:disabled) {
+      background-color: #0056b3;
+    }
+    .submit-btn:disabled {
+      background-color: #a0c4ff;
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+
+    /* Keypad with Variable 'x' and Equals '=' Key */
+    .keypad {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .key-btn {
+      padding: 12px 0;
+      font-size: 20px;
+      font-weight: bold;
+      background-color: #e9ecef;
+      color: #333;
+      border: 1px solid #ced4da;
+      border-radius: 6px;
+      cursor: pointer;
+      user-select: none;
+      touch-action: manipulation;
+    }
+    .key-btn:active {
+      background-color: #adb5bd;
+    }
+    .key-btn.var {
+      background-color: #e2e6ea;
+      color: #007bff;
+      border-color: #b8daff;
+    }
+    .key-btn.action {
+      background-color: #6c757d;
+      color: white;
+      border-color: #5a6268;
+    }
+    .key-btn.action:active {
+      background-color: #495057;
+    }
+
+    .feedback {
+      margin-top: 15px;
+      font-size: 15px;
+      font-weight: bold;
+      min-height: 52px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      line-height: 1.4;
+      padding: 0 5px;
+    }
+    .correct { color: #28a745; }
+    .incorrect { color: #dc3545; }
+
+    .stats-container {
+      margin-top: 20px;
+      padding-top: 15px;
+      border-top: 1px solid #eee;
+      display: flex;
+      justify-content: space-around;
+      font-size: 14px;
+      color: #555;
+    }
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .stat-value {
+      font-weight: bold;
+      font-size: 16px;
+      color: #333;
+    }
+
+    .nav-links {
+      margin-top: 18px;
+      padding-top: 12px;
+      border-top: 1px dashed #eee;
+      font-size: 14px;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      align-items: center;
+    }
+    .nav-links a {
+      color: #007bff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .nav-links a:hover {
+      text-decoration: underline;
+    }
+    .nav-links span {
+      color: #ccc;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <div class="streak-badge" id="streakBadge">🌟 10+ Streak! Great job clearing decimals!</div>
+  <h2>Clearing Decimals</h2>
+  <p class="instruction">Multiply by 10 or 100 to write an equivalent equation with <strong>no decimals</strong> (e.g., <strong>2x+15=7x-5</strong>).</p>
+
+  <div class="problem-display" id="problemDisplay"></div>
+
+  <form id="answerForm">
+    <input type="text" id="userInput" placeholder="Type cleared equation..." autocomplete="off">
+    
+    <div class="keypad">
+      <!-- Row 1 -->
+      <button type="button" class="key-btn" data-val="1">1</button>
+      <button type="button" class="key-btn" data-val="2">2</button>
+      <button type="button" class="key-btn" data-val="3">3</button>
+      <button type="button" class="key-btn var" data-val="x">x</button>
+
+      <!-- Row 2 -->
+      <button type="button" class="key-btn" data-val="4">4</button>
+      <button type="button" class="key-btn" data-val="5">5</button>
+      <button type="button" class="key-btn" data-val="6">6</button>
+      <button type="button" class="key-btn var" data-val="+">+</button>
+
+      <!-- Row 3 -->
+      <button type="button" class="key-btn" data-val="7">7</button>
+      <button type="button" class="key-btn" data-val="8">8</button>
+      <button type="button" class="key-btn" data-val="9">9</button>
+      <button type="button" class="key-btn var" data-val="-">-</button>
+
+      <!-- Row 4 -->
+      <button type="button" class="key-btn" data-val="0">0</button>
+      <button type="button" class="key-btn var" data-val="=">=</button>
+      <button type="button" class="key-btn action" id="backspaceBtn" style="grid-column: span 2;">⌫</button>
+    </div>
+
+    <button type="submit" id="submitBtn" class="submit-btn">Submit Answer</button>
+  </form>
+
+  <div class="feedback" id="feedback"></div>
+
+  <div class="stats-container">
+    <div class="stat-item">
+      <span>Streak</span>
+      <span class="stat-value" id="streakVal">0</span>
+    </div>
+    <div class="stat-item">
+      <span>Total</span>
+      <span class="stat-value" id="totalVal">0</span>
+    </div>
+    <div class="stat-item">
+      <span>Correct</span>
+      <span class="stat-value" id="correctVal" style="color: #28a745;">0</span>
+    </div>
+    <div class="stat-item">
+      <span>Incorrect</span>
+      <span class="stat-value" id="incorrectVal" style="color: #dc3545;">0</span>
+    </div>
+  </div>
+
+  <div class="nav-links">
+    <a href="javascript:history.back()">← Go Back</a>
+    <span>|</span>
+    <a href="https://thomashanno.github.io/8thgrademath/index.html">🏠 Home</a>
+  </div>
+</div>
+
+<script>
+  let currentProblem = null;
+  let streak = 0;
+  let total = 0;
+  let correct = 0;
+  let incorrect = 0;
+  let attemptsOnCurrentProblem = 0;
+  let isTransitioning = false;
+
+  const userInput = document.getElementById('userInput');
+  const problemDisplayEl = document.getElementById('problemDisplay');
+  const submitBtn = document.getElementById('submitBtn');
+  const isMobile = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+
+  if (isMobile) {
+    userInput.setAttribute('readonly', 'true');
+    userInput.setAttribute('inputmode', 'none');
+  }
+
+  function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  function getRandomNonZero(min, max) {
+    let val = 0;
+    while (val === 0) {
+      val = getRandomInt(min, max);
+    }
+    return val;
+  }
+
+  function resetInputStyle() {
+    userInput.classList.remove('input-correct', 'input-incorrect');
+  }
+
+  function formatLinearTerm(coeff) {
+    if (coeff === 0) return '';
+    if (coeff === 1) return 'x';
+    if (coeff === -1) return '-x';
+    return `${coeff}x`;
+  }
+
+  function formatExpression(coeff, constVal) {
+    const termStr = formatLinearTerm(coeff);
+    if (termStr === '') return `${constVal}`;
+    if (constVal === 0) return termStr;
+    if (constVal > 0) return `${termStr} + ${constVal}`;
+    return `${termStr} - ${Math.abs(constVal)}`;
+  }
+
+  function formatDecimalNumber(intVal, mult) {
+    const floatVal = intVal / mult;
+    // Strip redundant trailing zeros in JS floats while maintaining exact string representation
+    return Number(floatVal.toFixed(2)).toString();
+  }
+
+  function formatDecimalExpression(coeffInt, constInt, mult) {
+    const coeffDec = formatDecimalNumber(coeffInt, mult);
+    const constDec = formatDecimalNumber(constInt, mult);
+
+    let termStr = '';
+    if (coeffInt === mult) termStr = 'x';
+    else if (coeffInt === -mult) termStr = '-x';
+    else termStr = `${coeffDec}x`;
+
+    if (constInt === 0) return termStr;
+    if (constInt > 0) return `${termStr} + ${constDec}`;
+    return `${termStr} - ${formatDecimalNumber(Math.abs(constInt), mult)}`;
+  }
+
+  function generateProblem() {
+    isTransitioning = false;
+    submitBtn.disabled = false;
+
+    // Pick mode: 1 = Tenths (multiplier 10), 2 = Hundredths (multiplier 100)
+    const mode = Math.random() < 0.5 ? 1 : 2;
+    const mult = mode === 1 ? 10 : 100;
+
+    let aInt, bInt, cInt, dInt;
+
+    if (mode === 1) {
+      // Tenths mode: numbers are tenths (e.g., 0.2, 1.5, -0.7)
+      aInt = getRandomNonZero(-12, 12);
+      cInt = getRandomNonZero(-12, 12);
+      while (aInt === cInt) {
+        cInt = getRandomNonZero(-12, 12);
+      }
+      bInt = getRandomInt(-25, 25);
+      dInt = getRandomInt(-25, 25);
+    } else {
+      // Hundredths mode: mix of hundredths and tenths (e.g., 0.05, 0.12, 0.3)
+      aInt = getRandomNonZero(-40, 40);
+      cInt = getRandomNonZero(-40, 40);
+      while (aInt === cInt) {
+        cInt = getRandomNonZero(-40, 40);
+      }
+      bInt = getRandomInt(-80, 80);
+      dInt = getRandomInt(-80, 80);
+    }
+
+    const clearedLeft = formatExpression(aInt, bInt);
+    const clearedRight = formatExpression(cInt, dInt);
+    const expectedEquation = `${clearedLeft}=${clearedRight}`;
+
+    const decLeft = formatDecimalExpression(aInt, bInt, mult);
+    const decRight = formatDecimalExpression(cInt, dInt, mult);
+    const displayEq = `${decLeft} = ${decRight}`;
+
+    problemDisplayEl.textContent = displayEq;
+
+    currentProblem = {
+      mult: mult,
+      expected: expectedEquation,
+      leftCoeff: aInt,
+      leftConst: bInt,
+      rightCoeff: cInt,
+      rightConst: dInt,
+      hintText: `💡 <strong>Hint:</strong> Multiply every term on both sides by <strong>${mult}</strong> to move the decimal point.`,
+      explanation: `Correct! <strong>${clearedLeft} = ${clearedRight}</strong>`
+    };
+
+    attemptsOnCurrentProblem = 0;
+    userInput.value = '';
+    resetInputStyle();
+
+    if (!isMobile) {
+      userInput.focus();
+    }
+  }
+
+  function normalizeEquationString(str) {
+    return str.replace(/\s+/g, '').toLowerCase();
+  }
+
+  function evaluateAnswer(userAnswer) {
+    if (isTransitioning) return;
+
+    const feedback = document.getElementById('feedback');
+    const normalizedUser = normalizeEquationString(userAnswer);
+    const normalizedTarget = normalizeEquationString(currentProblem.expected);
+
+    // Accept negative flipped target (-a x - b = -c x - d)
+    const flippedTarget = normalizeEquationString(
+      `${formatExpression(-currentProblem.leftCoeff, -currentProblem.leftConst)}=${formatExpression(-currentProblem.rightCoeff, -currentProblem.rightConst)}`
+    );
+
+    const isCorrect = (normalizedUser === normalizedTarget || normalizedUser === flippedTarget);
+
+    attemptsOnCurrentProblem++;
+
+    if (isCorrect) {
+      isTransitioning = true;
+      submitBtn.disabled = true;
+
+      feedback.innerHTML = currentProblem.explanation;
+      feedback.className = "feedback correct";
+
+      userInput.classList.remove('input-incorrect');
+      userInput.classList.add('input-correct');
+
+      if (attemptsOnCurrentProblem === 1) {
+        total++;
+        correct++;
+        streak++;
+      } else {
+        streak++;
+      }
+
+      updateStats();
+      setTimeout(() => {
+        feedback.innerHTML = "";
+        generateProblem();
+      }, 1600);
+    } else {
+      userInput.classList.remove('input-correct');
+      userInput.classList.add('input-incorrect');
+
+      if (attemptsOnCurrentProblem === 1) {
+        feedback.innerHTML = currentProblem.hintText;
+        feedback.className = "feedback incorrect";
+
+        total++;
+        incorrect++;
+        streak = 0;
+        updateStats();
+      } else {
+        feedback.innerHTML = `Incorrect. Multiplying by ${currentProblem.mult} gives <strong>${currentProblem.expected.replace('=', ' = ')}</strong>`;
+        feedback.className = "feedback incorrect";
+
+        streak = 0;
+        updateStats();
+      }
+    }
+  }
+
+  function updateStats() {
+    document.getElementById('streakVal').textContent = streak;
+    document.getElementById('totalVal').textContent = total;
+    document.getElementById('correctVal').textContent = correct;
+    document.getElementById('incorrectVal').textContent = incorrect;
+
+    // High Streak Milestone Visual Toggle (Streak >= 10)
+    if (streak >= 10) {
+      document.body.classList.add('high-streak');
+    } else {
+      document.body.classList.remove('high-streak');
+    }
+  }
+
+  function insertAtCursor(val) {
+    if (isTransitioning) return;
+    resetInputStyle();
+
+    let start = userInput.selectionStart;
+    let end = userInput.selectionEnd;
+
+    if (start === null || start === undefined) start = userInput.value.length;
+    if (end === null || end === undefined) end = userInput.value.length;
+
+    const currentText = userInput.value;
+    userInput.value = currentText.slice(0, start) + val + currentText.slice(end);
+
+    const newCursorPos = start + val.length;
+    userInput.setSelectionRange(newCursorPos, newCursorPos);
+
+    if (!isMobile) {
+      userInput.focus();
+    }
+  }
+
+  function backspaceAtCursor() {
+    if (isTransitioning) return;
+    resetInputStyle();
+
+    let start = userInput.selectionStart;
+    let end = userInput.selectionEnd;
+
+    if (start === null || start === undefined) start = userInput.value.length;
+    if (end === null || end === undefined) end = userInput.value.length;
+
+    const currentText = userInput.value;
+
+    if (start !== end) {
+      userInput.value = currentText.slice(0, start) + currentText.slice(end);
+      userInput.setSelectionRange(start, start);
+    } else if (start > 0) {
+      userInput.value = currentText.slice(0, start - 1) + currentText.slice(start);
+      userInput.setSelectionRange(start - 1, start - 1);
+    }
+
+    if (!isMobile) {
+      userInput.focus();
+    }
+  }
+
+  document.querySelectorAll('.key-btn[data-val]').forEach(button => {
+    button.addEventListener('click', function() {
+      const val = this.getAttribute('data-val');
+      insertAtCursor(val);
+    });
+  });
+
+  document.getElementById('backspaceBtn').addEventListener('click', function() {
+    backspaceAtCursor();
+  });
+
+  userInput.addEventListener('input', resetInputStyle);
+
+  document.getElementById('answerForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    if (isTransitioning || userInput.value.trim() === '') return;
+    evaluateAnswer(userInput.value);
+  });
+
+  generateProblem();
+</script>
+
+</body>
+</html>

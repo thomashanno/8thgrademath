@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Number of Solutions (Basic) Practice</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f7f6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 15px;
+      box-sizing: border-box;
+      transition: background-color 0.6s ease;
+    }
+
+    /* High Streak Milestone Background (Streak >= 10) */
+    body.high-streak {
+      background-color: #d4edda;
+    }
+
+    .card {
+      background: white;
+      padding: 25px 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      text-align: center;
+      max-width: 440px;
+      width: 100%;
+      transition: border-color 0.6s ease, box-shadow 0.6s ease;
+    }
+
+    body.high-streak .card {
+      border: 2px solid #28a745;
+      box-shadow: 0 6px 20px rgba(40, 167, 69, 0.25);
+    }
+
+    .streak-badge {
+      display: none;
+      background-color: #28a745;
+      color: white;
+      font-size: 13px;
+      font-weight: bold;
+      padding: 5px 12px;
+      border-radius: 20px;
+      margin-bottom: 12px;
+      letter-spacing: 0.5px;
+      animation: pulse 2s infinite;
+    }
+
+    body.high-streak .streak-badge {
+      display: inline-block;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.04); }
+      100% { transform: scale(1); }
+    }
+
+    .instruction {
+      margin: 0 0 10px 0;
+      font-size: 15px;
+      color: #444;
+      line-height: 1.4;
+    }
+
+    .problem-display {
+      font-size: 28px;
+      font-weight: bold;
+      color: #111;
+      background-color: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      padding: 18px 12px;
+      margin: 15px 0 20px 0;
+      letter-spacing: 0.5px;
+      min-height: 52px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      word-break: break-word;
+    }
+
+    /* Option Buttons Layout */
+    .options-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 15px;
+    }
+
+    .option-btn {
+      width: 100%;
+      padding: 15px 12px;
+      font-size: 17px;
+      font-weight: bold;
+      background-color: #ffffff;
+      color: #333;
+      border: 2px solid #ced4da;
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: center;
+      transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+      user-select: none;
+      touch-action: manipulation;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      background-color: #eef6ff;
+      border-color: #007bff;
+      color: #007bff;
+    }
+
+    .option-btn:disabled {
+      cursor: not-allowed;
+      opacity: 0.8;
+    }
+
+    .option-btn.correct-choice {
+      background-color: #e8f8ec !important;
+      border-color: #28a745 !important;
+      color: #155724 !important;
+    }
+
+    .option-btn.incorrect-choice {
+      background-color: #fdf2f2 !important;
+      border-color: #dc3545 !important;
+      color: #721c24 !important;
+    }
+
+    .feedback {
+      margin-top: 15px;
+      font-size: 15px;
+      font-weight: bold;
+      min-height: 52px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      line-height: 1.4;
+      padding: 0 5px;
+    }
+    .correct { color: #28a745; }
+    .incorrect { color: #dc3545; }
+
+    .stats-container {
+      margin-top: 20px;
+      padding-top: 15px;
+      border-top: 1px solid #eee;
+      display: flex;
+      justify-content: space-around;
+      font-size: 14px;
+      color: #555;
+    }
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .stat-value {
+      font-weight: bold;
+      font-size: 16px;
+      color: #333;
+    }
+
+    .nav-links {
+      margin-top: 18px;
+      padding-top: 12px;
+      border-top: 1px dashed #eee;
+      font-size: 14px;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      align-items: center;
+    }
+    .nav-links a {
+      color: #007bff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .nav-links a:hover {
+      text-decoration: underline;
+    }
+    .nav-links span {
+      color: #ccc;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <div class="streak-badge" id="streakBadge">🌟 10+ Streak! Fantastic job!</div>
+  <h2>Number of Solutions</h2>
+  <p class="instruction">Compare the two sides to find the number of solutions.</p>
+
+  <div class="problem-display" id="problemDisplay"></div>
+
+  <div class="options-grid" id="optionsContainer">
+    <button type="button" class="option-btn" data-choice="One Solution">One Solution</button>
+    <button type="button" class="option-btn" data-choice="No Solution">No Solution</button>
+    <button type="button" class="option-btn" data-choice="Infinitely Many Solutions">Infinitely Many Solutions</button>
+  </div>
+
+  <div class="feedback" id="feedback"></div>
+
+  <div class="stats-container">
+    <div class="stat-item">
+      <span>Streak</span>
+      <span class="stat-value" id="streakVal">0</span>
+    </div>
+    <div class="stat-item">
+      <span>Total</span>
+      <span class="stat-value" id="totalVal">0</span>
+    </div>
+    <div class="stat-item">
+      <span>Correct</span>
+      <span class="stat-value" id="correctVal" style="color: #28a745;">0</span>
+    </div>
+    <div class="stat-item">
+      <span>Incorrect</span>
+      <span class="stat-value" id="incorrectVal" style="color: #dc3545;">0</span>
+    </div>
+  </div>
+
+  <div class="nav-links">
+    <a href="javascript:history.back()">← Go Back</a>
+    <span>|</span>
+    <a href="https://thomashanno.github.io/8thgrademath/index.html">🏠 Home</a>
+  </div>
+</div>
+
+<script>
+  let currentProblem = null;
+  let streak = 0;
+  let total = 0;
+  let correct = 0;
+  let incorrect = 0;
+  let attemptsOnCurrentProblem = 0;
+  let isTransitioning = false;
+
+  const problemDisplayEl = document.getElementById('problemDisplay');
+  const optionButtons = document.querySelectorAll('.option-btn');
+  const feedbackEl = document.getElementById('feedback');
+
+  function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  function getRandomNonZero(min, max) {
+    let val = 0;
+    while (val === 0) {
+      val = getRandomInt(min, max);
+    }
+    return val;
+  }
+
+  function resetOptionStyles() {
+    optionButtons.forEach(btn => {
+      btn.disabled = false;
+      btn.classList.remove('correct-choice', 'incorrect-choice');
+    });
+  }
+
+  function formatLinearTerm(coeff) {
+    if (coeff === 0) return '';
+    if (coeff === 1) return 'x';
+    if (coeff === -1) return '-x';
+    return `${coeff}x`;
+  }
+
+  function formatExpression(coeff, constVal) {
+    const termStr = formatLinearTerm(coeff);
+    if (termStr === '') return `${constVal}`;
+    if (constVal === 0) return termStr;
+    if (constVal > 0) return `${termStr} + ${constVal}`;
+    return `${termStr} - ${Math.abs(constVal)}`;
+  }
+
+  function generateProblem() {
+    isTransitioning = false;
+    resetOptionStyles();
+    feedbackEl.innerHTML = "";
+    feedbackEl.className = "feedback";
+
+    // Categories:
+    // 0: One Solution (a != c)
+    // 1: No Solution (a == c, b != d)
+    // 2: Infinitely Many Solutions (a == c, b == d)
+    const category = getRandomInt(0, 2);
+
+    let a, c, b, d;
+    let correctCategory = "";
+    let explanationMsg = "";
+
+    if (category === 0) {
+      correctCategory = "One Solution";
+      a = getRandomNonZero(-8, 8);
+      c = getRandomNonZero(-8, 8);
+      while (a === c) {
+        c = getRandomNonZero(-8, 8);
+      }
+      b = getRandomNonZero(-12, 12);
+      d = getRandomNonZero(-12, 12);
+
+      explanationMsg = `Correct! Because the coefficients of <strong>x</strong> are different (${formatLinearTerm(a)} vs ${formatLinearTerm(c)}), there is <strong>One Solution</strong>.`;
+
+    } else if (category === 1) {
+      correctCategory = "No Solution";
+      a = getRandomNonZero(-8, 8);
+      c = a;
+      b = getRandomNonZero(-12, 12);
+      d = getRandomNonZero(-12, 12);
+      while (b === d) {
+        d = getRandomNonZero(-12, 12);
+      }
+
+      explanationMsg = `Correct! The <strong>x</strong> coefficients match (${formatLinearTerm(a)}), but the constants are different (${b} vs ${d}), so there is <strong>No Solution</strong>.`;
+
+    } else {
+      correctCategory = "Infinitely Many Solutions";
+      a = getRandomNonZero(-8, 8);
+      c = a;
+      b = getRandomNonZero(-12, 12);
+      d = b;
+
+      explanationMsg = `Correct! Both sides are completely identical, so there are <strong>Infinitely Many Solutions</strong>.`;
+    }
+
+    const displayEq = `${formatExpression(a, b)} = ${formatExpression(c, d)}`;
+    problemDisplayEl.textContent = displayEq;
+
+    const hintMsg = `💡 <strong>Hint:</strong> Look at the coefficients of x and the constants:<br>` +
+      `• Different x coefficients → <strong>One Solution</strong><br>` +
+      `• Same x coefficient, different constants → <strong>No Solution</strong><br>` +
+      `• Exactly identical sides → <strong>Infinitely Many Solutions</strong>`;
+
+    currentProblem = {
+      correctCategory: correctCategory,
+      hintText: hintMsg,
+      explanation: explanationMsg
+    };
+
+    attemptsOnCurrentProblem = 0;
+  }
+
+  function handleChoiceSelect(selectedChoice, clickedButton) {
+    if (isTransitioning) return;
+
+    attemptsOnCurrentProblem++;
+
+    if (selectedChoice === currentProblem.correctCategory) {
+      isTransitioning = true;
+      optionButtons.forEach(btn => btn.disabled = true);
+      clickedButton.classList.add('correct-choice');
+
+      feedbackEl.innerHTML = currentProblem.explanation;
+      feedbackEl.className = "feedback correct";
+
+      if (attemptsOnCurrentProblem === 1) {
+        total++;
+        correct++;
+        streak++;
+      } else {
+        streak++;
+      }
+
+      updateStats();
+
+      setTimeout(() => {
+        generateProblem();
+      }, 1600);
+
+    } else {
+      clickedButton.classList.add('incorrect-choice');
+      clickedButton.disabled = true;
+
+      if (attemptsOnCurrentProblem === 1) {
+        feedbackEl.innerHTML = currentProblem.hintText;
+        feedbackEl.className = "feedback incorrect";
+
+        total++;
+        incorrect++;
+        streak = 0;
+        updateStats();
+      } else {
+        feedbackEl.innerHTML = `Incorrect. This equation has <strong>${currentProblem.correctCategory}</strong>.`;
+        feedbackEl.className = "feedback incorrect";
+
+        streak = 0;
+        updateStats();
+      }
+    }
+  }
+
+  function updateStats() {
+    document.getElementById('streakVal').textContent = streak;
+    document.getElementById('totalVal').textContent = total;
+    document.getElementById('correctVal').textContent = correct;
+    document.getElementById('incorrectVal').textContent = incorrect;
+
+    // High Streak Milestone Visual Toggle (Streak >= 10)
+    if (streak >= 10) {
+      document.body.classList.add('high-streak');
+    } else {
+      document.body.classList.remove('high-streak');
+    }
+  }
+
+  optionButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      const choice = this.getAttribute('data-choice');
+      handleChoiceSelect(choice, this);
+    });
+  });
+
+  generateProblem();
+</script>
+
+</body>
+</html>
