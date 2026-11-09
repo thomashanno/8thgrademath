@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Graphing Equations in Slope-Intercept Form</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f7f6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 15px;
+      box-sizing: border-box;
+      transition: background-color 0.4s ease;
+    }
+
+    /* Green Background Flash on Correct Answer */
+    body.correct-flash {
+      background-color: #c3e6cb !important;
+    }
+
+    /* High Streak Milestone Background (Streak >= 10) */
+    body.high-streak {
+      background-color: #d4edda;
+    }
+
+    .card {
+      background: white;
+      padding: 22px 18px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      text-align: center;
+      max-width: 440px;
+      width: 100%;
+      transition: border-color 0.4s ease, box-shadow 0.4s ease, background-color 0.4s ease;
+    }
+
+    body.correct-flash .card {
+      border: 2px solid #28a745;
+      box-shadow: 0 6px 20px rgba(40, 167, 69, 0.35);
+      background-color: #f4fdf6;
+    }
+
+    body.high-streak .card {
+      border: 2px solid #28a745;
+      box-shadow: 0 6px 20px rgba(40, 167, 69, 0.25);
+    }
+
+    .streak-badge {
+      display: none;
+      background-color: #28a745;
+      color: white;
+      font-size: 13px;
+      font-weight: bold;
+      padding: 5px 12px;
+      border-radius: 20px;
+      margin-bottom: 12px;
+      letter-spacing: 0.5px;
+      animation: pulse 2s infinite;
+    }
+
+    body.high-streak .streak-badge {
+      display: inline-block;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.04); }
+      100% { transform: scale(1); }
+    }
+
+    .instruction {
+      margin: 0 0 10px 0;
+      font-size: 14px;
+      color: #444;
+      line-height: 1.4;
+    }
+
+    .problem-display {
+      font-size: 26px;
+      font-weight: bold;
+      color: #111;
+      background-color: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      padding: 14px 10px;
+      margin: 10px 0 14px 0;
+      letter-spacing: 0.5px;
+      min-height: 48px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Vinculum Fraction Layout */
+    .eq-container {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+    .fraction {
+      display: inline-flex;
+      flex-direction: column;
+      vertical-align: middle;
+      align-items: center;
+      line-height: 1.1;
+      font-size: 24px;
+    }
+    .numerator {
+      border-bottom: 2.5px solid #111;
+      padding: 0 4px 2px 4px;
+      text-align: center;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .denominator {
+      padding: 2px 4px 0 4px;
+      text-align: center;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    /* Graph Canvas Area */
+    .canvas-container {
+      position: relative;
+      width: 320px;
+      height: 320px;
+      margin: 0 auto 12px auto;
+    }
+
+    canvas#gridCanvas {
+      width: 100%;
+      height: 100%;
+      background-color: #ffffff;
+      border: 2px solid #ced4da;
+      border-radius: 8px;
+      touch-action: none; /* Prevents mobile page scroll when tapping points */
+      cursor: pointer;
+    }
+
+    .graph-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      gap: 8px;
+    }
+
+    .point-status {
+      font-size: 13px;
+      font-weight: bold;
+      color: #007bff;
+    }
+
+    .btn-reset {
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: bold;
+      background-color: #e2e6ea;
+      color: #333;
+      border: 1px solid #ced4da;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .btn-reset:hover {
+      background-color: #d6d8db;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 12px;
+      font-size: 18px;
+      font-weight: bold;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.2s, opacity 0.2s;
+    }
+    .submit-btn:hover:not(:disabled) {
+      background-color: #0056b3;
+    }
+    .submit-btn:disabled {
+      background-color: #a0c4ff;
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+
+    .feedback {
+      margin-top: 14px;
+      font-size: 15px;
+      font-weight: bold;
+      min-height: 48px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      line-height: 1.4;
+      padding: 0 5px;
+    }
+    .correct { color: #28a745; }
+    .incorrect { color: #dc3545; }
+
+    .stats-container {
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid #eee;
+      display: flex;
+      justify-content: space-around;
+      font-size: 14px;
+      color: #555;
+    }
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .stat-value {
+      font-weight: bold;
+      font-size: 16px;
+      color: #333;
+    }
+
+    .nav-links {
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 1px dashed #eee;
+      font-size: 14px;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      align-items: center;
+    }
+    .nav-links a {
+      color: #007bff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .nav-links a:hover {
+      text-decoration: underline;
+    }
+    .nav-links span {
+      color: #ccc;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <div class="streak-badge" id="streakBadge">🌟 10+ Streak! Linear Function Master!</div>
+  <h2>Graphing $y = mx + b$</h2>
+  <p class="instruction">Tap <strong>2 points</strong> on the coordinate grid to plot the line.</p>
+
+  <div class="problem-display" id="problemDisplay"></div>
+
+  <div class="graph-controls">
+    <span class="point-status" id="pointStatus">Tap to place Point 1</span>
+    <button type="button" class="btn-reset" id="resetBtn">Clear Points 🔄</button>
+  </div>
+
+  <div class="canvas-container">
+    <canvas id="gridCanvas" width="320" height="320"></canvas>
+  </div>
+
+  <button type="button" id="submitBtn" class="submit-btn" disabled>Check Graph</button>
+
+  <div class="feedback" id="feedback"></div>
+
+  <div class="stats-container">
+    <div class="stat-item">
+      <span>Streak</span>
+      <span class="stat-value" id="streakVal">0</span>
+    </div>
+    <div class="stat-item">
+      <span>Total</span>
+      <span class="stat-value" id="totalVal">0</span>
+    </div>
+    <div class="stat-item">
+      <span>Correct</span>
+      <span class="stat-value" id="correctVal" style="color: #28a745;">0</span>
+    </div>
+    <div class="stat-item">
+      <span>Incorrect</span>
+      <span class="stat-value" id="incorrectVal" style="color: #dc3545;">0</span>
+    </div>
+  </div>
+
+  <div class="nav-links">
+    <a href="javascript:history.back()">← Go Back</a>
+    <span>|</span>
+    <a href="https://thomashanno.github.io/8thgrademath/index.html">🏠 Home</a>
+  </div>
+</div>
+
+<script>
+  let currentProblem = null;
+  let streak = 0;
+  let total = 0;
+  let correctCount = 0;
+  let incorrect = 0;
+  let attemptsOnCurrentProblem = 0;
+  let isTransitioning = false;
+
+  let userPoints = []; // Stores Array of {x, y} integer coordinates
+
+  const canvas = document.getElementById('gridCanvas');
+  const ctx = canvas.getContext('2d');
+  const pointStatusEl = document.getElementById('pointStatus');
+  const submitBtn = document.getElementById('submitBtn');
+  const problemDisplayEl = document.getElementById('problemDisplay');
+  const feedbackEl = document.getElementById('feedback');
+
+  const GRID_MIN = -10;
+  const GRID_MAX = 10;
+  const PADDING = 22; // Margin for axis labels
+
+  function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  // --- CANVAS & GRID DRAWING ENGINE ---
+  function getScale() {
+    return (canvas.width - 2 * PADDING) / (GRID_MAX - GRID_MIN);
+  }
+
+  function toCanvasX(gx) {
+    const scale = getScale();
+    return PADDING + (gx - GRID_MIN) * scale;
+  }
+
+  function toCanvasY(gy) {
+    const scale = getScale();
+    return PADDING + (GRID_MAX - gy) * scale;
+  }
+
+  function toGridCoords(cx, cy) {
+    const scale = getScale();
+    const gx = Math.round((cx - PADDING) / scale + GRID_MIN);
+    const gy = Math.round(GRID_MAX - (cy - PADDING) / scale);
+
+    const clampedX = Math.max(GRID_MIN, Math.min(GRID_MAX, gx));
+    const clampedY = Math.max(GRID_MIN, Math.min(GRID_MAX, gy));
+
+    return { x: clampedX, y: clampedY };
+  }
+
+  function drawGrid(showSolution = false) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // 1. Draw Grid Lines
+    ctx.strokeStyle = '#e9ecef';
+    ctx.lineWidth = 1;
+
+    for (let i = GRID_MIN; i <= GRID_MAX; i++) {
+      // Vertical lines
+      let x = toCanvasX(i);
+      ctx.beginPath();
+      ctx.moveTo(x, PADDING);
+      ctx.lineTo(x, canvas.height - PADDING);
+      ctx.stroke();
+
+      // Horizontal lines
+      let y = toCanvasY(i);
+      ctx.beginPath();
+      ctx.moveTo(PADDING, y);
+      ctx.lineTo(canvas.width - PADDING, y);
+      ctx.stroke();
+    }
+
+    // 2. Draw Main Axes (X and Y)
+    ctx.strokeStyle = '#495057';
+    ctx.lineWidth = 2;
+
+    // X Axis
+    let y0 = toCanvasY(0);
+    ctx.beginPath();
+    ctx.moveTo(PADDING, y0);
+    ctx.lineTo(canvas.width - PADDING, y0);
+    ctx.stroke();
+
+    // Y Axis
+    let x0 = toCanvasX(0);
+    ctx.beginPath();
+    ctx.moveTo(x0, PADDING);
+    ctx.lineTo(x0, canvas.height - PADDING);
+    ctx.stroke();
+
+    // 3. Draw Axis Labels & Numbers (-10, -5, 5, 10)
+    ctx.fillStyle = '#6c757d';
+    ctx.font = '10px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    for (let i = GRID_MIN; i <= GRID_MAX; i += 5) {
+      if (i !== 0) {
+        // X-axis numbers
+        ctx.fillText(i.toString(), toCanvasX(i), y0 + 12);
+        // Y-axis numbers
+        ctx.fillText(i.toString(), x0 - 12, toCanvasY(i));
+      }
+    }
+
+    // 4. Draw Solution Target Line (if revealed after second wrong attempt)
+    if (showSolution && currentProblem) {
+      ctx.strokeStyle = '#28a745';
+      ctx.lineWidth = 3;
+      ctx.setLineDash([6, 6]);
+
+      let x1 = GRID_MIN;
+      let y1 = currentProblem.m * x1 + currentProblem.b;
+      let x2 = GRID_MAX;
+      let y2 = currentProblem.m * x2 + currentProblem.b;
+
+      ctx.beginPath();
+      ctx.moveTo(toCanvasX(x1), toCanvasY(y1));
+      ctx.lineTo(toCanvasX(x2), toCanvasY(y2));
+      ctx.stroke();
+      ctx.setLineDash([]); // Reset dash
+    }
+
+    // 5. Draw User's Placed Line & Points
+    if (userPoints.length === 2) {
+      let p1 = userPoints[0];
+      let p2 = userPoints[1];
+
+      ctx.strokeStyle = (isTransitioning && currentProblem && isUserGraphCorrect()) ? '#28a745' : '#007bff';
+      ctx.lineWidth = 3.5;
+
+      let dx = p2.x - p1.x;
+      let dy = p2.y - p1.y;
+
+      if (dx === 0) { // Vertical line
+        ctx.beginPath();
+        ctx.moveTo(toCanvasX(p1.x), toCanvasY(GRID_MIN));
+        ctx.lineTo(toCanvasX(p1.x), toCanvasY(GRID_MAX));
+        ctx.stroke();
+      } else {
+        let slope = dy / dx;
+        let bVal = p1.y - slope * p1.x;
+
+        let xMinY = slope * GRID_MIN + bVal;
+        let xMaxY = slope * GRID_MAX + bVal;
+
+        ctx.beginPath();
+        ctx.moveTo(toCanvasX(GRID_MIN), toCanvasY(xMinY));
+        ctx.lineTo(toCanvasX(GRID_MAX), toCanvasY(xMaxY));
+        ctx.stroke();
+      }
+    }
+
+    // Draw User Point Dots
+    userPoints.forEach((pt, idx) => {
+      ctx.fillStyle = idx === 0 ? '#007bff' : '#fd7e14';
+      ctx.beginPath();
+      ctx.arc(toCanvasX(pt.x), toCanvasY(pt.y), 6, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    });
+  }
+
+  // Handle Touch/Click Graph Interactions
+  function handleCanvasClick(e) {
+    if (isTransitioning) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+
+    let clientX = e.clientX;
+    let clientY = e.clientY;
+
+    if (e.touches && e.touches.length > 0) {
+      clientX = e.touches[0].clientX;
+      clientY = e.touches[0].clientY;
+    }
+
+    const cx = (clientX - rect.left) * scaleX;
+    const cy = (clientY - rect.top) * scaleY;
+
+    const gridPt = toGridCoords(cx, cy);
+
+    if (userPoints.length < 2) {
+      if (userPoints.length === 1 && userPoints[0].x === gridPt.x && userPoints[0].y === gridPt.y) {
+        return;
+      }
+      userPoints.push(gridPt);
+    } else {
+      userPoints = [gridPt];
+    }
+
+    updateGraphUI();
+  }
+
+  function updateGraphUI() {
+    drawGrid();
+
+    if (userPoints.length === 0) {
+      pointStatusEl.textContent = "Tap to place Point 1";
+      submitBtn.disabled = true;
+    } else if (userPoints.length === 1) {
+      pointStatusEl.textContent = `Point 1: (${userPoints[0].x}, ${userPoints[0].y}) — Tap Point 2`;
+      submitBtn.disabled = true;
+    } else {
+      pointStatusEl.textContent = `Line drawn through (${userPoints[0].x}, ${userPoints[0].y}) & (${userPoints[1].x}, ${userPoints[1].y})`;
+      submitBtn.disabled = false;
+    }
+  }
+
+  document.getElementById('resetBtn').addEventListener('click', () => {
+    if (isTransitioning) return;
+    userPoints = [];
+    updateGraphUI();
+    feedbackEl.innerHTML = "";
+    feedbackEl.className = "feedback";
+  });
+
+  canvas.addEventListener('pointerdown', handleCanvasClick);
+
+  // --- PROBLEM GENERATION ENGINE ---
+  function generateProblem() {
+    isTransitioning = false;
+    userPoints = [];
+    submitBtn.disabled = true;
+    feedbackEl.innerHTML = "";
+    feedbackEl.className = "feedback";
+    document.body.classList.remove('correct-flash');
+
+    const slopeOptions = [
+      { num: 1, den: 1, m: 1, str: "x" },
+      { num: -1, den: 1, m: -1, str: "-x" },
+      { num: 2, den: 1, m: 2, str: "2x" },
+      { num: -2, den: 1, m: -2, str: "-2x" },
+      { num: 3, den: 1, m: 3, str: "3x" },
+      { num: -3, den: 1, m: -3, str: "-3x" },
+      { num: 1, den: 2, m: 0.5, htmlFrac: '<div class="fraction"><span class="numerator">1</span><span class="denominator">2</span></div><span>x</span>' },
+      { num: -1, den: 2, m: -0.5, htmlFrac: '<span>-</span><div class="fraction"><span class="numerator">1</span><span class="denominator">2</span></div><span>x</span>' },
+      { num: 2, den: 3, m: 2/3, htmlFrac: '<div class="fraction"><span class="numerator">2</span><span class="denominator">3</span></div><span>x</span>' },
+      { num: -2, den: 3, m: -2/3, htmlFrac: '<span>-</span><div class="fraction"><span class="numerator">2</span><span class="denominator">3</span></div><span>x</span>' },
+      { num: 3, den: 4, m: 0.75, htmlFrac: '<div class="fraction"><span class="numerator">3</span><span class="denominator">4</span></div><span>x</span>' },
+      { num: -3, den: 4, m: -0.75, htmlFrac: '<span>-</span><div class="fraction"><span class="numerator">3</span><span class="denominator">4</span></div><span>x</span>' }
+    ];
+
+    const selSlope = slopeOptions[getRandomInt(0, slopeOptions.length - 1)];
+    const b = getRandomInt(-6, 6);
+
+    let displayHTML = "<span>y = </span>";
+    if (selSlope.htmlFrac) {
+      displayHTML += selSlope.htmlFrac;
+    } else {
+      displayHTML += `<span>${selSlope.str}</span>`;
+    }
+
+    if (b > 0) displayHTML += `<span> + ${b}</span>`;
+    else if (b < 0) displayHTML += `<span> - ${Math.abs(b)}</span>`;
+
+    let slopeDesc = selSlope.den === 1 ? `${selSlope.num}` : `${selSlope.num}/${selSlope.den}`;
+    let riseRunDesc = selSlope.num > 0 ? `up ${selSlope.num}` : `down ${Math.abs(selSlope.num)}`;
+    let runDesc = `right ${selSlope.den}`;
+
+    const hintMsg = `💡 <strong>Hint:</strong> Step 1: Plot y-intercept at <strong>(0, ${b})</strong>.<br>Step 2: Use slope (${slopeDesc}) to move <strong>${riseRunDesc}</strong> and <strong>${runDesc}</strong> for the second point.`;
+
+    problemDisplayEl.innerHTML = `<div class="eq-container">${displayHTML}</div>`;
+
+    currentProblem = {
+      m: selSlope.m,
+      b: b,
+      slopeStr: slopeDesc,
+      hintText: hintMsg
+    };
+
+    attemptsOnCurrentProblem = 0;
+    updateGraphUI();
+  }
+
+  function isUserGraphCorrect() {
+    if (userPoints.length !== 2) return false;
+    let p1 = userPoints[0];
+    let p2 = userPoints[1];
+
+    let dx = p2.x - p1.x;
+    let dy = p2.y - p1.y;
+
+    if (dx === 0) return false;
+
+    let userM = dy / dx;
+    let userB = p1.y - userM * p1.x;
+
+    return (Math.abs(userM - currentProblem.m) < 0.001 && Math.abs(userB - currentProblem.b) < 0.001);
+  }
+
+  function evaluateGraph() {
+    if (isTransitioning || userPoints.length !== 2) return;
+
+    attemptsOnCurrentProblem++;
+    const isCorrect = isUserGraphCorrect();
+
+    if (isCorrect) {
+      isTransitioning = true;
+      submitBtn.disabled = true;
+
+      // Turn background green on correct answer
+      document.body.classList.add('correct-flash');
+
+      feedbackEl.innerHTML = `Correct! Perfect graph for $y = mx + b$.`;
+      feedbackEl.className = "feedback correct";
+
+      if (attemptsOnCurrentProblem === 1) {
+        total++;
+        correctCount++;
+        streak++;
+      } else {
+        streak++;
+      }
+
+      updateStats();
+      drawGrid();
+
+      setTimeout(() => {
+        generateProblem();
+      }, 1600);
+
+    } else {
+      document.body.classList.remove('correct-flash');
+
+      if (attemptsOnCurrentProblem === 1) {
+        feedbackEl.innerHTML = currentProblem.hintText;
+        feedbackEl.className = "feedback incorrect";
+
+        total++;
+        incorrect++;
+        streak = 0;
+        updateStats();
+      } else {
+        feedbackEl.innerHTML = `Incorrect. Green dashed line shows the correct graph.`;
+        feedbackEl.className = "feedback incorrect";
+
+        streak = 0;
+        updateStats();
+        drawGrid(true); // Overlay correct dashed line
+      }
+    }
+  }
+
+  function updateStats() {
+    document.getElementById('streakVal').textContent = streak;
+    document.getElementById('totalVal').textContent = total;
+    document.getElementById('correctVal').textContent = correctCount;
+    document.getElementById('incorrectVal').textContent = incorrect;
+
+    // High Streak Milestone Visual Toggle (Streak >= 10)
+    if (streak >= 10) {
+      document.body.classList.add('high-streak');
+    } else {
+      document.body.classList.remove('high-streak');
+    }
+  }
+
+  submitBtn.addEventListener('click', evaluateGraph);
+
+  generateProblem();
+</script>
+
+</body>
+</html>

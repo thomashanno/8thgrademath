@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Write the Equation of a Line (y = mx + b)</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f7f6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 15px;
+      box-sizing: border-box;
+      transition: background-color 0.4s ease;
+    }
+
+    /* Green Background Flash on Correct Answer */
+    body.correct-flash {
+      background-color: #c3e6cb !important;
+    }
+
+    /* High Streak Milestone Background (Streak >= 10) */
+    body.high-streak {
+      background-color: #d4edda;
+    }
+
+    .card {
+      background: white;
+      padding: 22px 18px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      text-align: center;
+      max-width: 440px;
+      width: 100%;
+      transition: border-color 0.4s ease, box-shadow 0.4s ease, background-color 0.4s ease;
+    }
+
+    body.correct-flash .card {
+      border: 2px solid #28a745;
+      box-shadow: 0 6px 20px rgba(40, 167, 69, 0.35);
+      background-color: #f4fdf6;
+    }
+
+    body.high-streak .card {
+      border: 2px solid #28a745;
+      box-shadow: 0 6px 20px rgba(40, 167, 69, 0.25);
+    }
+
+    .streak-badge {
+      display: none;
+      background-color: #28a745;
+      color: white;
+      font-size: 13px;
+      font-weight: bold;
+      padding: 5px 12px;
+      border-radius: 20px;
+      margin-bottom: 12px;
+      letter-spacing: 0.5px;
+      animation: pulse 2s infinite;
+    }
+
+    body.high-streak .streak-badge {
+      display: inline-block;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.04); }
+      100% { transform: scale(1); }
+    }
+
+    .instruction {
+      margin: 0 0 10px 0;
+      font-size: 14px;
+      color: #444;
+      line-height: 1.4;
+    }
+
+    /* Canvas Grid Container */
+    .canvas-container {
+      position: relative;
+      width: 320px;
+      height: 320px;
+      margin: 0 auto 15px auto;
+    }
+
+    canvas#gridCanvas {
+      width: 100%;
+      height: 100%;
+      background-color: #ffffff;
+      border: 2px solid #ced4da;
+      border-radius: 8px;
+      display: block;
+    }
+
+    input[type="text"] {
+      font-size: 22px;
+      padding: 10px;
+      width: 100%;
+      text-align: center;
+      border: 2px solid #ccc;
+      border-radius: 6px;
+      outline: none;
+      box-sizing: border-box;
+      background-color: #fff;
+      transition: border-color 0.2s, background-color 0.2s;
+    }
+    input[type="text"]:focus {
+      border-color: #007bff;
+    }
+
+    /* Input feedback states */
+    input[type="text"].input-correct {
+      border-color: #28a745 !important;
+      background-color: #e8f8ec !important;
+      color: #155724;
+    }
+    input[type="text"].input-incorrect {
+      border-color: #dc3545 !important;
+      background-color: #fdf2f2 !important;
+      color: #721c24;
+    }
+
+    .submit-btn {
+      margin-top: 12px;
+      width: 100%;
+      padding: 12px;
+      font-size: 18px;
+      font-weight: bold;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.2s, opacity 0.2s;
+    }
+    .submit-btn:hover:not(:disabled) {
+      background-color: #0056b3;
+    }
+    .submit-btn:disabled {
+      background-color: #a0c4ff;
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+
+    /* Custom Math Keypad */
+    .keypad {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .key-btn {
+      padding: 11px 0;
+      font-size: 20px;
+      font-weight: bold;
+      background-color: #e9ecef;
+      color: #333;
+      border: 1px solid #ced4da;
+      border-radius: 6px;
+      cursor: pointer;
+      user-select: none;
+      touch-action: manipulation;
+    }
+    .key-btn:active {
+      background-color: #adb5bd;
+    }
+    .key-btn.var {
+      background-color: #e2e6ea;
+      color: #007bff;
+      border-color: #b8daff;
+    }
+    .key-btn.action {
+      background-color: #6c757d;
+      color: white;
+      border-color: #5a6268;
+    }
+    .key-btn.action:active {
+      background-color: #495057;
+    }
+
+    .feedback {
+      margin-top: 14px;
+      font-size: 15px;
+      font-weight: bold;
+      min-height: 48px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      line-height: 1.4;
+      padding: 0 5px;
+    }
+    .correct { color: #28a745; }
+    .incorrect { color: #dc3545; }
+
+    .stats-container {
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid #eee;
+      display: flex;
+      justify-content: space-around;
+      font-size: 14px;
+      color: #555;
+    }
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .stat-value {
+      font-weight: bold;
+      font-size: 16px;
+      color: #333;
+    }
+
+    .nav-links {
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 1px dashed #eee;
+      font-size: 14px;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      align-items: center;
+    }
+    .nav-links a {
+      color: #007bff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .nav-links a:hover {
+      text-decoration: underline;
+    }
+    .nav-links span {
+      color: #ccc;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <div class="streak-badge" id="streakBadge">🌟 10+ Streak! Linear Equation Master!</div>
+  <h2>Identify the Equation</h2>
+  <p class="instruction">Use the <strong>lattice points (dots)</strong> on the line to find the slope and $y$-intercept.</p>
+
+  <div class="canvas-container">
+    <canvas id="gridCanvas" width="320" height="320"></canvas>
+  </div>
+
+  <form id="answerForm">
+    <input type="text" id="userInput" placeholder="e.g., y = 2/3x - 4" autocomplete="off">
+    
+    <div class="keypad">
+      <!-- Row 1 -->
+      <button type="button" class="key-btn" data-val="1">1</button>
+      <button type="button" class="key-btn" data-val="2">2</button>
+      <button type="button" class="key-btn" data-val="3">3</button>
+      <button type="button" class="key-btn var" data-val="y">y</button>
+
+      <!-- Row 2 -->
+      <button type="button" class="key-btn" data-val="4">4</button>
+      <button type="button" class="key-btn" data-val="5">5</button>
+      <button type="button" class="key-btn" data-val="6">6</button>
+      <button type="button" class="key-btn var" data-val="x">x</button>
+
+      <!-- Row 3 -->
+      <button type="button" class="key-btn" data-val="7">7</button>
+      <button type="button" class="key-btn" data-val="8">8</button>
+      <button type="button" class="key-btn" data-val="9">9</button>
+      <button type="button" class="key-btn var" data-val="=">=</button>
+
+      <!-- Row 4 -->
+      <button type="button" class="key-btn" data-val="-">-</button>
+      <button type="button" class="key-btn" data-val="0">0</button>
+      <button type="button" class="key-btn" data-val="/">/</button>
+      <button type="button" class="key-btn var" data-val="+">+</button>
+
+      <!-- Row 5 -->
+      <button type="button" class="key-btn action" id="backspaceBtn" style="grid-column: span 4;">⌫ Backspace</button>
+    </div>
+
+    <button type="submit" id="submitBtn" class="submit-btn">Submit Answer</button>
+  </form>
+
+  <div class="feedback" id="feedback"></div>
+
+  <div class="stats-container">
+    <div class="stat-item">
+      <span>Streak</span>
+      <span class="stat-value" id="streakVal">0</span>
+    </div>
+    <div class="stat-item">
+      <span>Total</span>
+      <span class="stat-value" id="totalVal">0</span>
+    </div>
+    <div class="stat-item">
+      <span>Correct</span>
+      <span class="stat-value" id="correctVal" style="color: #28a745;">0</span>
+    </div>
+    <div class="stat-item">
+      <span>Incorrect</span>
+      <span class="stat-value" id="incorrectVal" style="color: #dc3545;">0</span>
+    </div>
+  </div>
+
+  <div class="nav-links">
+    <a href="javascript:history.back()">← Go Back</a>
+    <span>|</span>
+    <a href="https://thomashanno.github.io/8thgrademath/index.html">🏠 Home</a>
+  </div>
+</div>
+
+<script>
+  let currentProblem = null;
+  let streak = 0;
+  let total = 0;
+  let correctCount = 0;
+  let incorrect = 0;
+  let attemptsOnCurrentProblem = 0;
+  let isTransitioning = false;
+
+  const canvas = document.getElementById('gridCanvas');
+  const ctx = canvas.getContext('2d');
+  const userInput = document.getElementById('userInput');
+  const submitBtn = document.getElementById('submitBtn');
+  const feedbackEl = document.getElementById('feedback');
+  const isMobile = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+
+  if (isMobile) {
+    userInput.setAttribute('readonly', 'true');
+    userInput.setAttribute('inputmode', 'none');
+  }
+
+  const GRID_MIN = -10;
+  const GRID_MAX = 10;
+  const PADDING = 22;
+
+  function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  function getScale() {
+    return (canvas.width - 2 * PADDING) / (GRID_MAX - GRID_MIN);
+  }
+
+  function toCanvasX(gx) {
+    const scale = getScale();
+    return PADDING + (gx - GRID_MIN) * scale;
+  }
+
+  function toCanvasY(gy) {
+    const scale = getScale();
+    return PADDING + (GRID_MAX - gy) * scale;
+  }
+
+  function resetInputStyle() {
+    userInput.classList.remove('input-correct', 'input-incorrect');
+  }
+
+  // --- GRID & LINE DRAWING ENGINE WITH VISIBLE LATTICE POINTS ---
+  function drawGraph(m, b, den) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // 1. Grid Lines
+    ctx.strokeStyle = '#e9ecef';
+    ctx.lineWidth = 1;
+
+    for (let i = GRID_MIN; i <= GRID_MAX; i++) {
+      let x = toCanvasX(i);
+      ctx.beginPath();
+      ctx.moveTo(x, PADDING);
+      ctx.lineTo(x, canvas.height - PADDING);
+      ctx.stroke();
+
+      let y = toCanvasY(i);
+      ctx.beginPath();
+      ctx.moveTo(PADDING, y);
+      ctx.lineTo(canvas.width - PADDING, y);
+      ctx.stroke();
+    }
+
+    // 2. Main Axes
+    ctx.strokeStyle = '#495057';
+    ctx.lineWidth = 2;
+
+    let y0 = toCanvasY(0);
+    ctx.beginPath();
+    ctx.moveTo(PADDING, y0);
+    ctx.lineTo(canvas.width - PADDING, y0);
+    ctx.stroke();
+
+    let x0 = toCanvasX(0);
+    ctx.beginPath();
+    ctx.moveTo(x0, PADDING);
+    ctx.lineTo(x0, canvas.height - PADDING);
+    ctx.stroke();
+
+    // 3. Axis Labels
+    ctx.fillStyle = '#6c757d';
+    ctx.font = '10px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    for (let i = GRID_MIN; i <= GRID_MAX; i += 5) {
+      if (i !== 0) {
+        ctx.fillText(i.toString(), toCanvasX(i), y0 + 12);
+        ctx.fillText(i.toString(), x0 - 12, toCanvasY(i));
+      }
+    }
+
+    // 4. Plotted Line
+    ctx.strokeStyle = '#007bff';
+    ctx.lineWidth = 3.5;
+
+    let x1 = GRID_MIN;
+    let y1 = m * x1 + b;
+    let x2 = GRID_MAX;
+    let y2 = m * x2 + b;
+
+    ctx.beginPath();
+    ctx.moveTo(toCanvasX(x1), toCanvasY(y1));
+    ctx.lineTo(toCanvasX(x2), toCanvasY(y2));
+    ctx.stroke();
+
+    // 5. Draw Highlighted Lattice Points (Integer Intersections)
+    const step = den || 1;
+    for (let gx = GRID_MIN; gx <= GRID_MAX; gx++) {
+      let gy = Math.round(m * gx + b);
+      // Verify point is a true lattice integer coordinate within grid bounds
+      if (Math.abs((m * gx + b) - gy) < 0.0001 && gy >= GRID_MIN && gy <= GRID_MAX) {
+        // Highlight y-intercept in orange/red, other lattice points in dark blue
+        if (gx === 0) {
+          ctx.fillStyle = '#dc3545'; // Y-intercept dot
+        } else {
+          ctx.fillStyle = '#0056b3'; // Regular lattice points
+        }
+
+        ctx.beginPath();
+        ctx.arc(toCanvasX(gx), toCanvasY(gy), 5.5, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+    }
+  }
+
+  // --- PROBLEM GENERATOR ---
+  function generateProblem() {
+    isTransitioning = false;
+    submitBtn.disabled = false;
+    feedbackEl.innerHTML = "";
+    feedbackEl.className = "feedback";
+    document.body.classList.remove('correct-flash');
+
+    const slopeOptions = [
+      { num: 1, den: 1, m: 1, str: "x" },
+      { num: -1, den: 1, m: -1, str: "-x" },
+      { num: 2, den: 1, m: 2, str: "2x" },
+      { num: -2, den: 1, m: -2, str: "-2x" },
+      { num: 3, den: 1, m: 3, str: "3x" },
+      { num: -3, den: 1, m: -3, str: "-3x" },
+      { num: 1, den: 2, m: 0.5, str: "1/2x" },
+      { num: -1, den: 2, m: -0.5, str: "-1/2x" },
+      { num: 2, den: 3, m: 2/3, str: "2/3x" },
+      { num: -2, den: 3, m: -2/3, str: "-2/3x" },
+      { num: 3, den: 4, m: 0.75, str: "3/4x" },
+      { num: -3, den: 4, m: -0.75, str: "-3/4x" }
+    ];
+
+    const selSlope = slopeOptions[getRandomInt(0, slopeOptions.length - 1)];
+    const b = getRandomInt(-6, 6);
+
+    let canonicalEq = `y=${selSlope.str}`;
+    if (b > 0) canonicalEq += `+${b}`;
+    else if (b < 0) canonicalEq += `-${Math.abs(b)}`;
+
+    let displayEq = `y = ${selSlope.str}`;
+    if (b > 0) displayEq += ` + ${b}`;
+    else if (b < 0) displayEq += ` - ${Math.abs(b)}`;
+
+    let slopeDesc = selSlope.den === 1 ? `${selSlope.num}` : `${selSlope.num}/${selSlope.den}`;
+    let riseDesc = selSlope.num > 0 ? `up ${selSlope.num}` : `down ${Math.abs(selSlope.num)}`;
+
+    const hintMsg = `💡 <strong>Hint:</strong> Step 1: Look at the red dot on the y-axis for $b = ${b}$.<br>Step 2: Count rise/run between dots to find slope $m = ${slopeDesc}$ (${riseDesc}, right ${selSlope.den}).`;
+
+    drawGraph(selSlope.m, b, selSlope.den);
+
+    currentProblem = {
+      m: selSlope.m,
+      b: b,
+      num: selSlope.num,
+      den: selSlope.den,
+      canonicalStr: canonicalEq,
+      displayStr: displayEq,
+      hintText: hintMsg
+    };
+
+    attemptsOnCurrentProblem = 0;
+    userInput.value = '';
+    resetInputStyle();
+
+    if (!isMobile) {
+      userInput.focus();
+    }
+  }
+
+  function parseUserEquation(str) {
+    let clean = str.trim().replace(/\s+/g, '').toLowerCase();
+
+    // Strip leading "y=" if present
+    if (clean.startsWith('y=')) {
+      clean = clean.replace('y=', '');
+    }
+
+    if (!clean.includes('x')) return null;
+
+    const xIndex = clean.indexOf('x');
+    const coeffPart = clean.slice(0, xIndex);
+    const constPart = clean.slice(xIndex + 1);
+
+    // Parse Slope (m)
+    let m = 1;
+    if (coeffPart === '') m = 1;
+    else if (coeffPart === '-') m = -1;
+    else if (coeffPart.includes('/')) {
+      const parts = coeffPart.split('/');
+      const num = parseInt(parts[0], 10);
+      const den = parseInt(parts[1], 10);
+      if (isNaN(num) || isNaN(den) || den === 0) return null;
+      m = num / den;
+    } else {
+      m = parseFloat(coeffPart);
+    }
+
+    // Parse Intercept (b)
+    let b = 0;
+    if (constPart === '') b = 0;
+    else b = parseFloat(constPart);
+
+    if (isNaN(m) || isNaN(b)) return null;
+
+    return { m: m, b: b };
+  }
+
+  function evaluateAnswer(userAnswerStr) {
+    if (isTransitioning) return;
+
+    attemptsOnCurrentProblem++;
+    const parsed = parseUserEquation(userAnswerStr);
+    const isCorrect = (parsed !== null && Math.abs(parsed.m - currentProblem.m) < 0.001 && Math.abs(parsed.b - currentProblem.b) < 0.001);
+
+    if (isCorrect) {
+      isTransitioning = true;
+      submitBtn.disabled = true;
+
+      document.body.classList.add('correct-flash');
+      userInput.classList.remove('input-incorrect');
+      userInput.classList.add('input-correct');
+
+      feedbackEl.innerHTML = `Correct! The equation is <strong>${currentProblem.displayStr}</strong>.`;
+      feedbackEl.className = "feedback correct";
+
+      if (attemptsOnCurrentProblem === 1) {
+        total++;
+        correctCount++;
+        streak++;
+      } else {
+        streak++;
+      }
+
+      updateStats();
+
+      setTimeout(() => {
+        feedbackEl.innerHTML = "";
+        generateProblem();
+      }, 1600);
+
+    } else {
+      userInput.classList.remove('input-correct');
+      userInput.classList.add('input-incorrect');
+      document.body.classList.remove('correct-flash');
+
+      if (attemptsOnCurrentProblem === 1) {
+        feedbackEl.innerHTML = currentProblem.hintText;
+        feedbackEl.className = "feedback incorrect";
+
+        total++;
+        incorrect++;
+        streak = 0;
+        updateStats();
+      } else {
+        feedbackEl.innerHTML = `Incorrect. Equation is <strong>${currentProblem.displayStr}</strong>.`;
+        feedbackEl.className = "feedback incorrect";
+
+        streak = 0;
+        updateStats();
+      }
+    }
+  }
+
+  function updateStats() {
+    document.getElementById('streakVal').textContent = streak;
+    document.getElementById('totalVal').textContent = total;
+    document.getElementById('correctVal').textContent = correctCount;
+    document.getElementById('incorrectVal').textContent = incorrect;
+
+    // High Streak Milestone Visual Toggle (Streak >= 10)
+    if (streak >= 10) {
+      document.body.classList.add('high-streak');
+    } else {
+      document.body.classList.remove('high-streak');
+    }
+  }
+
+  // Cursor-aware Keypad Insertion Logic
+  function insertAtCursor(val) {
+    if (isTransitioning) return;
+    resetInputStyle();
+
+    let start = userInput.selectionStart;
+    let end = userInput.selectionEnd;
+
+    if (start === null || start === undefined) start = userInput.value.length;
+    if (end === null || end === undefined) end = userInput.value.length;
+
+    const currentText = userInput.value;
+    userInput.value = currentText.slice(0, start) + val + currentText.slice(end);
+
+    const newCursorPos = start + val.length;
+    userInput.setSelectionRange(newCursorPos, newCursorPos);
+
+    if (!isMobile) {
+      userInput.focus();
+    }
+  }
+
+  function backspaceAtCursor() {
+    if (isTransitioning) return;
+    resetInputStyle();
+
+    let start = userInput.selectionStart;
+    let end = userInput.selectionEnd;
+
+    if (start === null || start === undefined) start = userInput.value.length;
+    if (end === null || end === undefined) end = userInput.value.length;
+
+    const currentText = userInput.value;
+
+    if (start !== end) {
+      userInput.value = currentText.slice(0, start) + currentText.slice(end);
+      userInput.setSelectionRange(start, start);
+    } else if (start > 0) {
+      userInput.value = currentText.slice(0, start - 1) + currentText.slice(start);
+      userInput.setSelectionRange(start - 1, start - 1);
+    }
+
+    if (!isMobile) {
+      userInput.focus();
+    }
+  }
+
+  document.querySelectorAll('.key-btn[data-val]').forEach(button => {
+    button.addEventListener('click', function() {
+      const val = this.getAttribute('data-val');
+      insertAtCursor(val);
+    });
+  });
+
+  document.getElementById('backspaceBtn').addEventListener('click', function() {
+    backspaceAtCursor();
+  });
+
+  userInput.addEventListener('input', resetInputStyle);
+
+  document.getElementById('answerForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    if (isTransitioning || userInput.value.trim() === '') return;
+    evaluateAnswer(userInput.value);
+  });
+
+  generateProblem();
+</script>
+
+</body>
+</html>
